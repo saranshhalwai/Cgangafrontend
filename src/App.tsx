@@ -501,7 +501,7 @@ function App() {
         </Card>
 
         {/* Map Container */}
-        <Card className="h-[calc(100vh-140px)] w-screen flex-1 shadow-lg overflow-hidden">
+        <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
           <div ref={mapRef} id="map" className="w-full h-[500px] rounded-lg" />
         </Card>
       </div>
