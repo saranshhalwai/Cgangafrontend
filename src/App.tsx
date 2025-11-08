@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { fetchGeoData } from "./api";
 
@@ -404,7 +405,14 @@ function App() {
               <MapPin className="h-6 w-6 text-[#34A0A4]" />
               <h1 className="text-2xl font-bold text-gray-800">CGanga Data Visualizer</h1>
             </div>
-            <p className="text-gray-600">Interactive visualization platform for Ganga river ecosystem data</p>
+            <div className="flex items-center justify-center gap-4">
+              <p className="text-gray-600">Interactive visualization platform for Ganga river ecosystem data</p>
+              <Link to="/upload" className="ml-2">
+                <button className="px-3 py-1 rounded bg-[#34A0A4] text-white hover:bg-[#2A8084] text-sm">
+                  Upload / Admin
+                </button>
+              </Link>
+            </div>
           </CardHeader>
         </Card>
       </div>
