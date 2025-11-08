@@ -1,3 +1,5 @@
+// eslint-disable-next-line max-lines
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-function, no-empty */
 // src/App.tsx
 import { useEffect, useRef, useState } from "react";
 import {
@@ -20,6 +22,7 @@ import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { fetchGeoData } from "./api";
+import { useTheme } from "@/components/theme-provider";
 
 /* ---------------------------
    Your existing dummy data (kept as fallback)
@@ -395,57 +398,66 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    const order: Array<typeof theme> = ["light", "dark", "system"];
+    const idx = order.indexOf(theme);
+    setTheme(order[(idx + 1) % order.length]);
+  };
+
   return (
-    <div className="bg-gradient-to-b from-[#34A0A4] to-[#52B788] min-h-screen">
+    <div className="bg-gradient-to-b from-[#34A0A4] to-[#52B788] dark:from-[#184E77] dark:to-[#1A759F] min-h-screen">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-[#99D98C] to-[#B5E48C]">
+      <div className="p-4 bg-gradient-to-r from-[#99D98C] to-[#B5E48C] dark:from-[#168AAD] dark:to-[#1A759F]">
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-2">
             <div className="flex items-center justify-center gap-2 mb-2">
               <MapPin className="h-6 w-6 text-[#34A0A4]" />
-              <h1 className="text-2xl font-bold text-gray-800">CGanga Data Visualizer</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">CGanga Data Visualizer</h1>
             </div>
             <div className="flex items-center justify-center gap-4">
-              <p className="text-gray-600">Interactive visualization platform for Ganga river ecosystem data</p>
-              <Link to="/upload" className="ml-2">
-                <button className="px-3 py-1 rounded bg-[#34A0A4] text-white hover:bg-[#2A8084] text-sm">
-                  Upload / Admin
-                </button>
-              </Link>
-            </div>
-          </CardHeader>
-        </Card>
-      </div>
-
-      <div className="flex gap-4 p-4 h-[calc(100vh-140px)]">
-        {/* Control Panel */}
-        <Card className="w-80 shadow-lg overflow-y-auto">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Layers className="h-5 w-5" />
-                Data Layers
-              </h3>
+              <p className="text-gray-600 dark:text-slate-200">Interactive visualization platform for Ganga river ecosystem data</p>
               <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  onClick={refreshData}
-                  disabled={isLoading}
-                  className="bg-[#34A0A4] hover:bg-[#2A8084]"
-                >
-                  {isLoading ? "Refreshing..." : "Refresh"}
+                <Button onClick={cycleTheme} size="sm" variant="outline">{theme === "system" ? "Auto" : theme === "dark" ? "Dark" : "Light"}</Button>
+                <Button asChild size="sm" className="ml-2">
+                  <Link to="/upload" className="whitespace-nowrap">Upload / Admin</Link>
                 </Button>
               </div>
             </div>
-          </CardHeader>
+           </CardHeader>
+         </Card>
+       </div>
 
-          <CardContent className="space-y-4">
-            {/* Layer Controls */}
-            <div className="space-y-3">
+       <div className="flex gap-4 p-4 h-[calc(100vh-140px)]">
+         {/* Control Panel */}
+         <Card className="w-80 shadow-lg overflow-y-auto">
+           <CardHeader className="pb-3">
+             <div className="flex items-center justify-between">
+               <h3 className="text-lg font-semibold flex items-center gap-2">
+                 <Layers className="h-5 w-5" />
+                 Data Layers
+               </h3>
+               <div className="flex items-center gap-2">
+                 <Button
+                   size="sm"
+                   onClick={refreshData}
+                   disabled={isLoading}
+                   className="bg-[#34A0A4] hover:bg-[#2A8084]"
+                 >
+                   {isLoading ? "Refreshing..." : "Refresh"}
+                 </Button>
+               </div>
+             </div>
+           </CardHeader>
+
+           <CardContent className="space-y-4">
+             {/* Layer Controls */}
+             <div className="space-y-3">
               {(Object.keys(layerConfig) as LayerKey[]).map((key) => {
                 const cfg = layerConfig[key];
                 return (
-                  <div key={key} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                  <div key={key} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-4 h-4 rounded-full border-2"
@@ -457,64 +469,64 @@ function App() {
                   </div>
                 );
               })}
-            </div>
+             </div>
 
-            {/* Data Summary */}
-            <div className="border-t pt-4">
-              <h4 className="font-medium mb-2 flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Active Layers
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {(Object.keys(selectedLayers) as LayerKey[])
-                  .filter((k) => selectedLayers[k])
-                  .map((k) => (
-                    <Badge key={k} variant="secondary" className="text-xs">
-                      {(layerConfig as any)[k].name.split(" ")[0]}
-                    </Badge>
-                  ))}
-              </div>
-            </div>
+             {/* Data Summary */}
+             <div className="border-t pt-4">
+               <h4 className="font-medium mb-2 flex items-center gap-2">
+                 <BarChart3 className="h-4 w-4" />
+                 Active Layers
+               </h4>
+               <div className="flex flex-wrap gap-1">
+                 {(Object.keys(selectedLayers) as LayerKey[])
+                   .filter((k) => selectedLayers[k])
+                   .map((k) => (
+                     <Badge key={k} variant="secondary" className="text-xs">
+                       {(layerConfig as any)[k].name.split(" ")[0]}
+                     </Badge>
+                   ))}
+               </div>
+             </div>
 
-            {/* Feature Details */}
-            {selectedFeature && (
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Selected Feature</h4>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm space-y-1">
-                  <div className="font-medium">{selectedFeature.name ?? "Unnamed feature"}</div>
-                  {Object.entries(selectedFeature)
-                    .filter(([k]) => k !== "name" && k !== "layerType")
-                    .map(([k, v]) => (
-                      <div key={k} className="flex justify-between">
-                        <span className="text-gray-600 capitalize">{k}:</span>
-                        <span>{Array.isArray(v) ? v.join(", ") : String(v)}</span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
+             {/* Feature Details */}
+             {selectedFeature && (
+               <div className="border-t pt-4">
+                 <h4 className="font-medium mb-2">Selected Feature</h4>
+                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg text-sm space-y-1">
+                   <div className="font-medium">{selectedFeature.name ?? "Unnamed feature"}</div>
+                   {Object.entries(selectedFeature)
+                     .filter(([k]) => k !== "name" && k !== "layerType")
+                     .map(([k, v]) => (
+                       <div key={k} className="flex justify-between">
+                         <span className="text-gray-600 dark:text-slate-300 capitalize">{k}:</span>
+                         <span>{Array.isArray(v) ? v.join(", ") : String(v)}</span>
+                       </div>
+                     ))}
+                 </div>
+               </div>
+             )}
 
-            {/* Actions */}
-            <div className="border-t pt-4 space-y-2">
-              <Button onClick={exportData} className="w-full bg-[#52B788] hover:bg-[#40916C]" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export Data
-              </Button>
-              <Button onClick={() => setSelectedFeature(null)} variant="outline" className="w-full" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Clear Selection
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+             {/* Actions */}
+             <div className="border-t pt-4 space-y-2">
+              <Button onClick={exportData} className="w-full bg-[#52B788] hover:bg-[#40916C] dark:bg-[#168AAD] dark:hover:bg-[#1A759F]" size="sm">
+                 <Download className="h-4 w-4 mr-2" />
+                 Export Data
+               </Button>
+               <Button onClick={() => setSelectedFeature(null)} variant="outline" className="w-full" size="sm">
+                 <Filter className="h-4 w-4 mr-2" />
+                 Clear Selection
+               </Button>
+             </div>
+           </CardContent>
+         </Card>
 
-        {/* Map Container */}
-        <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
-          <div ref={mapRef} id="map" className="w-full h-[500px] rounded-lg" />
-        </Card>
-      </div>
-    </div>
-  );
-}
+         {/* Map Container */}
+         <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
+           <div ref={mapRef} id="map" className="w-full h-[500px] rounded-lg" />
+         </Card>
+       </div>
+     </div>
+   );
+ }
 
-export default App;
+ export default App;

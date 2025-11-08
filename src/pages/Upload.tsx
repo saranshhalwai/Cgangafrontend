@@ -180,79 +180,79 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="p-4">
-      <Card className="max-w-3xl mx-auto">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Upload / Data operations</h2>
-            <div className="text-sm text-gray-500">Choose operation and submit</div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2 mb-4">
-            <Button variant={mode === "point" ? undefined : "outline"} onClick={() => setMode("point")}>Add Groundwater Point</Button>
-            <Button variant={mode === "update" ? undefined : "outline"} onClick={() => setMode("update")}>Update Stream</Button>
-            <Button variant={mode === "stream_shapefile" ? undefined : "outline"} onClick={() => setMode("stream_shapefile")}>Upload Stream Shapefile</Button>
-            <Button variant={mode === "basin_shapefile" ? undefined : "outline"} onClick={() => setMode("basin_shapefile")}>Upload Basin Shapefile</Button>
-          </div>
+    <div className="min-h-screen min-w-screen flex items-center justify-center p-6 bg-gradient-to-b from-[#D9ED92] via-[#76C893] to-[#1E6091] dark:bg-gradient-to-b dark:from-[#184E77] dark:via-[#1A759F] dark:to-[#168AAD]">
+      <Card className="max-w-3xl w-full mx-4 md:mx-auto bg-white/90 dark:bg-[#062a3a] shadow-2xl rounded-xl overflow-hidden min-w-0">
+        <CardHeader className="bg-gradient-to-r from-[#B5E48C] to-[#34A0A4] dark:from-[#1A759F] dark:to-[#168AAD] text-white p-4 rounded-t-xl">
+           <div className="flex items-center justify-between">
+             <h2 className="text-xl font-semibold">Upload / Data operations</h2>
+             <div className="text-sm text-slate-700 dark:text-slate-200">Choose operation and submit</div>
+           </div>
+         </CardHeader>
+         <CardContent className="p-6 space-y-4">
+           <div className="flex flex-wrap gap-2 mb-4 justify-center sm:justify-start overflow-x-auto py-1 max-w-full min-w-0">
+            <Button variant={mode === "point" ? undefined : "outline"} onClick={() => setMode("point")} className={`${mode === "point" ? "bg-[#34A0A4] text-white hover:bg-[#1E6091]" : ""} whitespace-nowrap`}>Add Groundwater Point</Button>
+            <Button variant={mode === "update" ? undefined : "outline"} onClick={() => setMode("update")} className={`${mode === "update" ? "bg-[#34A0A4] text-white hover:bg-[#1E6091]" : ""} whitespace-nowrap`}>Update Stream</Button>
+            <Button variant={mode === "stream_shapefile" ? undefined : "outline"} onClick={() => setMode("stream_shapefile")} className={`${mode === "stream_shapefile" ? "bg-[#34A0A4] text-white hover:bg-[#1E6091]" : ""} whitespace-nowrap`}>Upload Stream Shapefile</Button>
+            <Button variant={mode === "basin_shapefile" ? undefined : "outline"} onClick={() => setMode("basin_shapefile")} className={`${mode === "basin_shapefile" ? "bg-[#34A0A4] text-white hover:bg-[#1E6091]" : ""} whitespace-nowrap`}>Upload Basin Shapefile</Button>
+           </div>
 
-          {statusMsg && <div className="mb-2 text-green-700">{statusMsg}</div>}
-          {error && <div className="mb-2 text-red-700">{error}</div>}
+           {statusMsg && <div className="mb-2 text-green-700 dark:text-green-300">{statusMsg}</div>}
+           {error && <div className="mb-2 text-red-700 dark:text-red-300">{error}</div>}
 
-          {mode === "point" && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <input className="p-2 border rounded" placeholder="Latitude" value={lat} onChange={(e) => setLat(e.target.value)} />
-                <input className="p-2 border rounded" placeholder="Longitude" value={lon} onChange={(e) => setLon(e.target.value)} />
-                <input className="p-2 border rounded" placeholder="Water level" value={waterLevel} onChange={(e) => setWaterLevel(e.target.value)} />
-                <input className="p-2 border rounded" placeholder="District (optional)" value={district} onChange={(e) => setDistrict(e.target.value)} />
-              </div>
-              <div className="flex gap-2">
+           {mode === "point" && (
+             <div className="space-y-3">
+               <div className="grid grid-cols-2 gap-2">
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="Latitude" value={lat} onChange={(e) => setLat(e.target.value)} />
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="Longitude" value={lon} onChange={(e) => setLon(e.target.value)} />
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="Water level" value={waterLevel} onChange={(e) => setWaterLevel(e.target.value)} />
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="District (optional)" value={district} onChange={(e) => setDistrict(e.target.value)} />
+               </div>
+               <div className="flex gap-2">
                 <Button onClick={() => window.history.back()} variant="outline">Back</Button>
-                <Button onClick={submitPoint} disabled={isUploading}>{isUploading ? "Submitting..." : "Submit Point"}</Button>
-              </div>
-            </div>
-          )}
+                <Button onClick={submitPoint} disabled={isUploading} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Submitting..." : "Submit Point"}</Button>
+               </div>
+             </div>
+           )}
 
-          {mode === "update" && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 gap-2">
-                <input className="p-2 border rounded" placeholder="Stream id" value={streamId} onChange={(e) => setStreamId(e.target.value)} />
-                <input className="p-2 border rounded" placeholder="Stream name" value={streamName} onChange={(e) => setStreamName(e.target.value)} />
-                <input className="p-2 border rounded" placeholder="Remarks (optional)" value={streamRemarks} onChange={(e) => setStreamRemarks(e.target.value)} />
-              </div>
-              <div className="flex gap-2">
+           {mode === "update" && (
+             <div className="space-y-3">
+               <div className="grid grid-cols-1 gap-2">
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="Stream id" value={streamId} onChange={(e) => setStreamId(e.target.value)} />
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="Stream name" value={streamName} onChange={(e) => setStreamName(e.target.value)} />
+                <input className="p-2 border rounded bg-white/60 dark:bg-[#0b2a36] dark:border-[#184E77] focus:outline-none focus:ring-2 focus:ring-[#34A0A4]" placeholder="Remarks (optional)" value={streamRemarks} onChange={(e) => setStreamRemarks(e.target.value)} />
+               </div>
+               <div className="flex gap-2">
                 <Button onClick={() => window.history.back()} variant="outline">Back</Button>
-                <Button onClick={submitUpdateStream} disabled={isUploading}>{isUploading ? "Updating..." : "Update"}</Button>
-              </div>
-            </div>
-          )}
+                <Button onClick={submitUpdateStream} disabled={isUploading} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Updating..." : "Update"}</Button>
+               </div>
+             </div>
+           )}
 
-          {mode === "stream_shapefile" && (
-            <div className="space-y-3">
-              <div>
-                <input type="file" accept=".zip,.shp,.dbf,.prj" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-              </div>
-              <div className="flex gap-2">
+           {mode === "stream_shapefile" && (
+             <div className="space-y-3">
+               <div>
+                <input type="file" accept=".zip,.shp,.dbf,.prj" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-sm text-slate-700 dark:text-slate-200" />
+               </div>
+               <div className="flex gap-2">
                 <Button onClick={() => window.history.back()} variant="outline">Back</Button>
-                <Button onClick={() => submitShapefile("/api/upload_stream_shapefile")} disabled={isUploading || !file}>{isUploading ? "Uploading..." : "Upload Stream Shapefile"}</Button>
-              </div>
-            </div>
-          )}
+                <Button onClick={() => submitShapefile("/api/upload_stream_shapefile")} disabled={isUploading || !file} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Uploading..." : "Upload Stream Shapefile"}</Button>
+               </div>
+             </div>
+           )}
 
-          {mode === "basin_shapefile" && (
-            <div className="space-y-3">
-              <div>
-                <input type="file" accept=".zip,.shp,.dbf,.prj" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-              </div>
-              <div className="flex gap-2">
+           {mode === "basin_shapefile" && (
+             <div className="space-y-3">
+               <div>
+                <input type="file" accept=".zip,.shp,.dbf,.prj" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-sm text-slate-700 dark:text-slate-200" />
+               </div>
+               <div className="flex gap-2">
                 <Button onClick={() => window.history.back()} variant="outline">Back</Button>
-                <Button onClick={() => submitShapefile("/api/upload_basin_shapefile")} disabled={isUploading || !file}>{isUploading ? "Uploading..." : "Upload Basin Shapefile"}</Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+                <Button onClick={() => submitShapefile("/api/upload_basin_shapefile")} disabled={isUploading || !file} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Uploading..." : "Upload Basin Shapefile"}</Button>
+               </div>
+             </div>
+           )}
+         </CardContent>
+       </Card>
+     </div>
+   );
+ }
