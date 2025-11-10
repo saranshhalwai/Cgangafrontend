@@ -10,11 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          // primary teal/blue from the palette with white foreground and a darker hover
+          "bg-[#34A0A4] text-white shadow-xs hover:bg-[#1E6091]",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          // light background with dark text in light mode; dark background with white text in dark mode
+          "border bg-white/90 text-[#0f172a] shadow-xs hover:bg-[#D9ED92] dark:bg-[#062a3a] dark:text-white dark:border-[#184E77] dark:hover:bg-[#1A759F]",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
@@ -56,4 +58,4 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+export { Button }

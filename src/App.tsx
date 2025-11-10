@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import VerifyEmail from "./pages/VerifyEmail";
+import UploadPage from "./pages/Upload";
 function App() {
   // Simple authentication check
   const isLoggedIn = !!localStorage.getItem("token");
@@ -18,7 +19,13 @@ function App() {
         path="/dashboard"
         element={
           isLoggedIn ? <Dashboard /> : <Navigate to="/login" replace />
+
         }
+      />
+      <Route path="/upload"
+      element={
+        isLoggedIn? <UploadPage /> : <Navigate to="/login" replace />
+      }
       />
 
       {/* Redirect any unknown path */}

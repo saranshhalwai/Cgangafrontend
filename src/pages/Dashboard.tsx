@@ -1,7 +1,8 @@
-// src/pages/Dashboard.tsx
+// eslint-disable-next-line max-lines
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-function, no-empty */
+// src/App.tsx
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import  {
+import {
   map,
   Map as LeafletMap,
   tileLayer,
@@ -12,15 +13,19 @@ import  {
   GeoJSON,
 } from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import { fetchGeoData } from "../api";
+import { useTheme } from "@/components/theme-provider";
 
 /* ---------------------------
-   Dummy fallback data
+   Your existing dummy data (kept as fallback)
    --------------------------- */
 const dummyData = {
   waterQuality: {
@@ -65,6 +70,7 @@ const dummyData = {
       ],
     },
   },
+
   riverSegments: {
     name: "River Segments",
     color: "#0891B2",
@@ -108,6 +114,7 @@ const dummyData = {
       ],
     },
   },
+
   pollutionSources: {
     name: "Pollution Sources",
     color: "#DC2626",
@@ -137,6 +144,7 @@ const dummyData = {
       ],
     },
   },
+
   biodiversity: {
     name: "Biodiversity Hotspots",
     color: "#059669",
@@ -170,29 +178,40 @@ const dummyData = {
 };
 
 /* ---------------------------
-   Layer configuration
+   Map each frontend layer key to a backend endpoint
+   (change endpoints if your API path differs)
    --------------------------- */
 const layerConfig = {
-  waterQuality: { name: "Water Quality Monitoring Points", color: "#1E40AF", endpoint: "/api/ground_water_points" },
-  riverSegments: { name: "River Segments", color: "#0891B2", endpoint: "/api/hindon_stream_network" },
-  pollutionSources: { name: "UGC_STATION", color: "#DC2626", endpoint: "/api/ugc_stations" },
-  biodiversity: { name: "BASIN", color: "#059669", endpoint: "/api/hindon_basin" },
+  waterQuality: {
+    name: "Water Quality Monitoring Points",
+    color: "#1E40AF",
+    endpoint: "/api/ground_water_points",
+  },
+  riverSegments: {
+    name: "River Segments",
+    color: "#0891B2",
+    endpoint: "/api/hindon_stream_network",
+  },
+  pollutionSources: {
+    name: "Pollution Sources",
+    color: "#DC2626",
+    endpoint: "/api/ugc_stations", // use appropriate endpoint for pollution data if different
+  },
+  biodiversity: {
+    name: "Biodiversity Hotspots",
+    color: "#059669",
+    endpoint: "/api/hindon_basin",
+  },
 } as const;
 
 type LayerKey = keyof typeof layerConfig;
 
-export default function Dashboard() {
-  const navigate = useNavigate();
-
-  // 🚫 Redirect to login if not logged in
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) navigate("/login");
-  }, [navigate]);
-
+function App() {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMap = useRef<LeafletMap | null>(null);
+  // Leaflet layer instances by key
   const layersRef = useRef<Record<string, Layer | GeoJSON>>({});
+  // Cache GeoJSON data returned for each layer key
   const dataCacheRef = useRef<Record<string, any>>({});
 
   const [selectedLayers, setSelectedLayers] = useState<Record<LayerKey, boolean>>({
@@ -205,72 +224,173 @@ export default function Dashboard() {
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🗺️ Initialize map
+  // Init Leaflet map once
   useEffect(() => {
     if (mapRef.current && !leafletMap.current) {
-      leafletMap.current = map(mapRef.current, { center: latLng(27.8467, 79.9462), zoom: 7 });
+      leafletMap.current = map(mapRef.current, {
+        center: latLng(27.8467, 79.9462),
+        zoom: 7,
+      });
+
       tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
       }).addTo(leafletMap.current);
     }
-    return () => {
-  leafletMap.current?.remove();
-  leafletMap.current = null;
-};
 
+    // cleanup on unmount
+    return () => {
+      if (leafletMap.current) {
+        leafletMap.current.remove();
+        leafletMap.current = null;
+      }
+    };
   }, []);
 
+  // Helper: create and add a geoJSON layer to the map
   const addGeoJsonLayer = (key: string, geojsonData: any, color: string) => {
     if (!leafletMap.current) return;
-    if (layersRef.current[key]) leafletMap.current.removeLayer(layersRef.current[key]);
+    // remove old instance if exists
+    if (layersRef.current[key]) {
+      try {
+        leafletMap.current.removeLayer(layersRef.current[key] as Layer);
+      } catch {}
+      delete layersRef.current[key];
+    }
 
     const newLayer = geoJSON(geojsonData, {
-      style: { color, weight: 2, fillOpacity: key === "biodiversity" ? 0.3 : 0.8 },
+      style: {
+        color,
+        weight: key === "riverSegments" ? 4 : 2,
+        fillOpacity: key === "biodiversity" ? 0.3 : 0.8,
+      },
       pointToLayer: (_feature, latlng) =>
-        circleMarker(latlng, { radius: 6, color, fillColor: color, fillOpacity: 0.8 }),
-      onEachFeature: (feature, layer) => {
-        layer.on("click", () =>
-          setSelectedFeature({ layerType: (layerConfig as any)[key].name, ...feature.properties })
-        );
+        circleMarker(latlng, {
+          radius: 8,
+          color,
+          fillColor: color,
+          weight: 2,
+          fillOpacity: 0.8,
+        }),
+      onEachFeature: (feature: any, layer: any) => {
+        layer.on("click", () => {
+          setSelectedFeature({
+            layerType: (layerConfig as any)[key].name,
+            ...feature.properties,
+          });
+        });
       },
     });
+
     newLayer.addTo(leafletMap.current);
     layersRef.current[key] = newLayer;
+
+    // optionally fit to bounds of this layer for a better view (commented out)
+    // try {
+    //   const bounds = newLayer.getBounds();
+    //   if (bounds.isValid()) leafletMap.current.fitBounds(bounds, { maxZoom: 12 });
+    // } catch {}
   };
 
+  // Helper: remove a layer from the map
+  const removeLayer = (key: string) => {
+    const inst = layersRef.current[key];
+    if (inst && leafletMap.current) {
+      try {
+        leafletMap.current.removeLayer(inst as Layer);
+      } catch {}
+      delete layersRef.current[key];
+    }
+    // remove cached feature selection if it belonged to this layer
+    if (selectedFeature?.layerType === (layerConfig as any)[key].name) {
+      setSelectedFeature(null);
+    }
+  };
+
+  // Load data for one layer key: try API, fallback to dummy
   const loadLayerData = async (key: LayerKey) => {
     const cfg = layerConfig[key];
     setIsLoading(true);
     try {
       const fetched = await fetchGeoData(cfg.endpoint);
+      // Expecting GeoJSON from backend
       dataCacheRef.current[key] = fetched;
       addGeoJsonLayer(key, fetched, cfg.color);
-    } catch {
-      dataCacheRef.current[key] = (dummyData as any)[key].data;
-      addGeoJsonLayer(key, (dummyData as any)[key].data, cfg.color);
+    } catch (err) {
+      console.warn(`Failed to fetch ${cfg.endpoint}, using dummy data.`, err);
+      // fallback to bundled dummyData if available
+      if ((dummyData as any)[key]?.data) {
+        dataCacheRef.current[key] = (dummyData as any)[key].data;
+        addGeoJsonLayer(key, (dummyData as any)[key].data, cfg.color);
+      } else {
+        console.error("No dummy data found for", key);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Effect: watch selectedLayers and add/remove layers accordingly
   useEffect(() => {
+    if (!leafletMap.current) return;
+
+    // for each layerKey: add if selected and not present; remove if not selected but present
     (Object.keys(selectedLayers) as LayerKey[]).forEach((key) => {
-      if (selectedLayers[key]) loadLayerData(key);
-      else if (layersRef.current[key]) leafletMap.current?.removeLayer(layersRef.current[key]);
+      const visible = selectedLayers[key];
+      const isAdded = !!layersRef.current[key];
+
+      if (visible && !isAdded) {
+        // If already cached, use cache, otherwise fetch
+        if (dataCacheRef.current[key]) {
+          addGeoJsonLayer(key, dataCacheRef.current[key], layerConfig[key].color);
+        } else {
+          // load async
+          loadLayerData(key).catch((e) => {
+            console.error("Error loading layer", key, e);
+          });
+        }
+      } else if (!visible && isAdded) {
+        removeLayer(key);
+      }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLayers]);
 
-  const toggleLayer = (key: LayerKey) =>
-    setSelectedLayers((prev) => ({ ...prev, [key]: !prev[key] }));
+  // Toggle handler
+  const toggleLayer = (layerKey: LayerKey) => {
+    setSelectedLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
+  };
 
+  // Refresh: re-fetch all active layers from backend (overwrite cache & re-add)
+  const refreshData = async () => {
+    setIsLoading(true);
+    try {
+      const activeKeys = (Object.keys(selectedLayers) as LayerKey[]).filter((k) => selectedLayers[k]);
+      await Promise.all(
+        activeKeys.map(async (key) => {
+          // clear existing cached data and remove layer before reloading
+          delete dataCacheRef.current[key];
+          removeLayer(key);
+          await loadLayerData(key);
+        })
+      );
+    } catch (err) {
+      console.error("Error refreshing data", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Export active layers as a JSON file
   const exportData = () => {
     const active = (Object.keys(selectedLayers) as LayerKey[]).filter((k) => selectedLayers[k]);
-    const exportObj = active.reduce((acc, k) => {
-      acc[k] = dataCacheRef.current[k] ?? (dummyData as any)[k]?.data ?? null;
-      return acc;
-    }, {} as Record<string, any>);
-    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+    const exportObj: Record<string, any> = {};
+    active.forEach((k) => {
+      exportObj[k] = dataCacheRef.current[k] ?? (dummyData as any)[k]?.data ?? null;
+    });
+
+    const dataStr = JSON.stringify(exportObj, null, 2);
+    const b = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(b);
     const a = document.createElement("a");
     a.href = url;
     a.download = "cganga-active-layers.json";
@@ -278,116 +398,135 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    const order: Array<typeof theme> = ["light", "dark", "system"];
+    const idx = order.indexOf(theme);
+    setTheme(order[(idx + 1) % order.length]);
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#34A0A4] to-[#52B788] min-h-screen">
+    <div className="bg-gradient-to-b from-[#34A0A4] to-[#52B788] dark:from-[#184E77] dark:to-[#1A759F] min-h-screen">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-[#99D98C] to-[#B5E48C] flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-[#34A0A4]" />
-            CGanga Data Visualizer
-          </h1>
-          <p className="text-gray-600 text-sm">
-            Interactive visualization platform for Ganga river ecosystem data
-          </p>
-        </div>
-        <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">
-          Logout
-        </Button>
-      </div>
-
-      <div className="flex gap-4 p-4 h-[calc(100vh-140px)]">
-        {/* Control Panel */}
-        <Card className="w-80 shadow-lg overflow-y-auto">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Layers className="h-5 w-5" />
-                Data Layers
-              </h3>
-              <Button
-                size="sm"
-                onClick={() => Object.keys(selectedLayers).forEach((key) => loadLayerData(key as LayerKey))}
-                disabled={isLoading}
-                className="bg-[#34A0A4] hover:bg-[#2A8084]"
-              >
-                {isLoading ? "Refreshing..." : "Refresh"}
-              </Button>
+      <div className="p-4 bg-gradient-to-r from-[#99D98C] to-[#B5E48C] dark:from-[#168AAD] dark:to-[#1A759F]">
+        <Card className="shadow-lg">
+          <CardHeader className="text-center pb-2">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <MapPin className="h-6 w-6 text-[#34A0A4]" />
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">CGanga Data Visualizer</h1>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {(Object.keys(layerConfig) as LayerKey[]).map((key) => (
-              <div key={key} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-4 h-4 rounded-full border-2"
-                    style={{
-                      backgroundColor: layerConfig[key].color,
-                      borderColor: layerConfig[key].color,
-                    }}
-                  />
-                  <span className="text-sm font-medium">{layerConfig[key].name}</span>
-                </div>
-                <Switch checked={selectedLayers[key]} onCheckedChange={() => toggleLayer(key)} />
-              </div>
-            ))}
-            <div className="border-t pt-4">
-              <h4 className="font-medium mb-2 flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" /> Active Layers
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {(Object.keys(selectedLayers) as LayerKey[])
-                  .filter((k) => selectedLayers[k])
-                  .map((k) => (
-                    <Badge key={k} variant="secondary" className="text-xs">
-                      {(layerConfig as any)[k].name.split(" ")[0]}
-                    </Badge>
-                  ))}
+            <div className="flex items-center justify-center gap-4">
+              <p className="text-gray-600 dark:text-slate-200">Interactive visualization platform for Ganga river ecosystem data</p>
+              <div className="flex items-center gap-2">
+                <Button onClick={cycleTheme} size="sm" variant="outline">{theme === "system" ? "Auto" : theme === "dark" ? "Dark" : "Light"}</Button>
+                <Button asChild size="sm" className="ml-2">
+                  <Link to="/upload" className="whitespace-nowrap">Upload / Admin</Link>
+                </Button>
               </div>
             </div>
-            {selectedFeature && (
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Selected Feature</h4>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm space-y-1">
-                  <div className="font-medium">{selectedFeature.name ?? "Unnamed feature"}</div>
-                  {Object.entries(selectedFeature)
-                    .filter(([k]) => k !== "name" && k !== "layerType")
-                    .map(([k, v]) => (
-                      <div key={k} className="flex justify-between">
-                        <span className="text-gray-600 capitalize">{k}:</span>
-                        <span>{Array.isArray(v) ? v.join(", ") : String(v)}</span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-            <div className="border-t pt-4 space-y-2">
-              <Button onClick={exportData} className="w-full bg-[#52B788] hover:bg-[#40916C]" size="sm">
-                <Download className="h-4 w-4 mr-2" /> Export Data
-              </Button>
-              <Button onClick={() => setSelectedFeature(null)} variant="outline" className="w-full" size="sm">
-                <Filter className="h-4 w-4 mr-2" /> Clear Selection
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+           </CardHeader>
+         </Card>
+       </div>
 
-        {/* Map */}
-        <Card className="h-[calc(100vh-140px)] w-screen flex-1 shadow-lg overflow-hidden">
-          <div
-  ref={mapRef}
-  id="map"
-  style={{ height: "100%", width: "100%" }}
-  className="rounded-lg"
-/>
+       <div className="flex gap-4 p-4 h-[calc(100vh-140px)]">
+         {/* Control Panel */}
+         <Card className="w-80 shadow-lg overflow-y-auto">
+           <CardHeader className="pb-3">
+             <div className="flex items-center justify-between">
+               <h3 className="text-lg font-semibold flex items-center gap-2">
+                 <Layers className="h-5 w-5" />
+                 Data Layers
+               </h3>
+               <div className="flex items-center gap-2">
+                 <Button
+                   size="sm"
+                   onClick={refreshData}
+                   disabled={isLoading}
+                   className="bg-[#34A0A4] hover:bg-[#2A8084]"
+                 >
+                   {isLoading ? "Refreshing..." : "Refresh"}
+                 </Button>
+               </div>
+             </div>
+           </CardHeader>
 
-        </Card>
-      </div>
-    </div>
-  );
-}
+           <CardContent className="space-y-4">
+             {/* Layer Controls */}
+             <div className="space-y-3">
+              {(Object.keys(layerConfig) as LayerKey[]).map((key) => {
+                const cfg = layerConfig[key];
+                return (
+                  <div key={key} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full border-2"
+                        style={{ backgroundColor: cfg.color, borderColor: cfg.color }}
+                      />
+                      <span className="text-sm font-medium">{cfg.name}</span>
+                    </div>
+                    <Switch checked={!!selectedLayers[key]} onCheckedChange={() => toggleLayer(key)} />
+                  </div>
+                );
+              })}
+             </div>
+
+             {/* Data Summary */}
+             <div className="border-t pt-4">
+               <h4 className="font-medium mb-2 flex items-center gap-2">
+                 <BarChart3 className="h-4 w-4" />
+                 Active Layers
+               </h4>
+               <div className="flex flex-wrap gap-1">
+                 {(Object.keys(selectedLayers) as LayerKey[])
+                   .filter((k) => selectedLayers[k])
+                   .map((k) => (
+                     <Badge key={k} variant="secondary" className="text-xs">
+                       {(layerConfig as any)[k].name.split(" ")[0]}
+                     </Badge>
+                   ))}
+               </div>
+             </div>
+
+             {/* Feature Details */}
+             {selectedFeature && (
+               <div className="border-t pt-4">
+                 <h4 className="font-medium mb-2">Selected Feature</h4>
+                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg text-sm space-y-1">
+                   <div className="font-medium">{selectedFeature.name ?? "Unnamed feature"}</div>
+                   {Object.entries(selectedFeature)
+                     .filter(([k]) => k !== "name" && k !== "layerType")
+                     .map(([k, v]) => (
+                       <div key={k} className="flex justify-between">
+                         <span className="text-gray-600 dark:text-slate-300 capitalize">{k}:</span>
+                         <span>{Array.isArray(v) ? v.join(", ") : String(v)}</span>
+                       </div>
+                     ))}
+                 </div>
+               </div>
+             )}
+
+             {/* Actions */}
+             <div className="border-t pt-4 space-y-2">
+              <Button onClick={exportData} className="w-full bg-[#52B788] hover:bg-[#40916C] dark:bg-[#168AAD] dark:hover:bg-[#1A759F]" size="sm">
+                 <Download className="h-4 w-4 mr-2" />
+                 Export Data
+               </Button>
+               <Button onClick={() => setSelectedFeature(null)} variant="outline" className="w-full" size="sm">
+                 <Filter className="h-4 w-4 mr-2" />
+                 Clear Selection
+               </Button>
+             </div>
+           </CardContent>
+         </Card>
+
+         {/* Map Container */}
+         <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
+           <div ref={mapRef} id="map" className="w-full h-[500px] rounded-lg" />
+         </Card>
+       </div>
+     </div>
+   );
+ }
+
+ export default App;
