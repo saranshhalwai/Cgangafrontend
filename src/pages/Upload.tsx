@@ -116,7 +116,7 @@ export default function UploadPage() {
     }
     setIsUploading(true);
     try {
-      const res = await postJson("/api/add_groundwater_point", {
+        const res = await postJson("http://127.0.0.1:8000/api/add_groundwater_point", {
         lat: latNum,
         lon: lonNum,
         water_level: wlNum,
@@ -147,7 +147,7 @@ export default function UploadPage() {
     }
     setIsUploading(true);
     try {
-      const res = await putJson("/api/update_stream", {
+        const res = await putJson("http://127.0.0.1:8000/api/update_stream", {
         id: idNum,
         name: streamName,
         remarks: streamRemarks || "",
@@ -235,7 +235,7 @@ export default function UploadPage() {
                </div>
                <div className="flex gap-2">
                 <Button onClick={() => window.history.back()} variant="outline">Back</Button>
-                <Button onClick={() => submitShapefile("/api/upload_stream_shapefile")} disabled={isUploading || !file} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Uploading..." : "Upload Stream Shapefile"}</Button>
+                              <Button onClick={() => submitShapefile("http://127.0.0.1:8000/api/upload_stream_shapefile")} disabled={isUploading || !file} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Uploading..." : "Upload Stream Shapefile"}</Button>
                </div>
              </div>
            )}
@@ -247,7 +247,7 @@ export default function UploadPage() {
                </div>
                <div className="flex gap-2">
                 <Button onClick={() => window.history.back()} variant="outline">Back</Button>
-                <Button onClick={() => submitShapefile("/api/upload_basin_shapefile")} disabled={isUploading || !file} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Uploading..." : "Upload Basin Shapefile"}</Button>
+                              <Button onClick={() => submitShapefile("http://127.0.0.1:8000/api/upload_basin_shapefile")} disabled={isUploading || !file} className="bg-[#34A0A4] hover:bg-[#1E6091] text-white">{isUploading ? "Uploading..." : "Upload Basin Shapefile"}</Button>
                </div>
              </div>
            )}
