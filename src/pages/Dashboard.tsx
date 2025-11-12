@@ -19,7 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { fetchGeoData } from "../api";
 import { addGroundwaterPoint, updateStream } from "../api";
@@ -411,6 +411,13 @@ function App() {
   };
 
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   const cycleTheme = () => {
     const order: Array<typeof theme> = ["light", "dark", "system"];
@@ -432,6 +439,7 @@ function App() {
               <p className="text-gray-600 dark:text-slate-200">Interactive visualization platform for Ganga river ecosystem data</p>
               <div className="flex items-center gap-2">
                 <Button onClick={cycleTheme} size="sm" variant="outline">{theme === "system" ? "Auto" : theme === "dark" ? "Dark" : "Light"}</Button>
+                <Button onClick={handleLogout} size="sm" className="ml-2 bg-red-600 hover:bg-red-700 text-white">Logout</Button>
                 <Button asChild size="sm" className="ml-2">
                   <Link to="/upload" className="whitespace-nowrap">Upload / Admin</Link>
                 </Button>
@@ -572,4 +580,33 @@ function App() {
              {selectedFeature && (
                <div className="border-t pt-4">
                  <h4 className="font-medium mb-2">Selected Feature</h4>
-                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg
+                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg text-sm">
+                   <pre className="whitespace-pre-wrap break-words">{JSON.stringify(selectedFeature, null, 2)}</pre>
+                 </div>
+               </div>
+             )}
+
+             {/* Actions */}
+             <div className="border-t pt-4 space-y-2">
+               <Button onClick={exportData} className="w-full bg-[#52B788] hover:bg-[#40916C] dark:bg-[#168AAD] dark:hover:bg-[#1A759F]" size="sm">
+                 <Download className="h-4 w-4 mr-2" />
+                 Export Data
+               </Button>
+               <Button onClick={() => setSelectedFeature(null)} variant="outline" className="w-full" size="sm">
+                 <Filter className="h-4 w-4 mr-2" />
+                 Clear Selection
+               </Button>
+             </div>
+           </CardContent>
+         </Card>
+
+         {/* Map Container */}
+         <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
+           <div ref={mapRef} id="map" className="w-full h-[100%]" />
+         </Card>
+       </div>
+     </div>
+   );
+ }
+
+export default App;
