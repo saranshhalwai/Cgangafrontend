@@ -22,7 +22,7 @@ import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { fetchGeoData } from "../api";
-import { addGroundwaterPoint, updateStream, uploadStreamShapefile, uploadBasinShapefile } from "../api";
+import { addGroundwaterPoint, updateStream } from "../api";
 import { useTheme } from "@/components/theme-provider";
 
 /* ---------------------------
@@ -235,9 +235,6 @@ function App() {
   const [streamName, setStreamName] = useState<string>("");
   const [streamRemarks, setStreamRemarks] = useState<string>("");
 
-  const [streamZip, setStreamZip] = useState<File | null>(null);
-  const [basinZip, setBasinZip] = useState<File | null>(null);
-
   // Init Leaflet map once
   useEffect(() => {
     if (mapRef.current && !leafletMap.current) {
@@ -279,11 +276,12 @@ function App() {
       },
       pointToLayer: (_feature, latlng) =>
         circleMarker(latlng, {
-          radius: 8,
+          // Make groundwater / waterQuality markers smaller for better visual hierarchy
+          radius: key === "waterQuality" ? 5 : 8,
           color,
           fillColor: color,
-          weight: 2,
-          fillOpacity: 0.8,
+          weight: key === "waterQuality" ? 1.5 : 2,
+          fillOpacity: key === "waterQuality" ? 0.9 : 0.8,
         }),
       onEachFeature: (feature: any, layer: any) => {
         layer.on("click", () => {
@@ -561,30 +559,11 @@ function App() {
 
                {/* Upload Shapefiles */}
                <div className="space-y-2 text-sm">
-                 <div className="flex items-center gap-2">
-                   <input type="file" accept=".zip" onChange={(e) => setStreamZip(e.target.files?.[0] ?? null)} />
-                   <Button size="sm" onClick={async () => {
-                     if (!streamZip) { alert('Select a ZIP containing the shapefile first'); return; }
-                     try {
-                       setIsLoading(true);
-                       const res = await uploadStreamShapefile(streamZip);
-                       alert(JSON.stringify(res));
-                       if (selectedLayers.riverSegments) { delete dataCacheRef.current["riverSegments"]; removeLayer("riverSegments"); await loadLayerData("riverSegments"); }
-                     } catch (e: any) { alert(e?.message ?? String(e)); } finally { setIsLoading(false); }
-                   }}>Upload Stream ZIP</Button>
-                 </div>
-
-                 <div className="flex items-center gap-2">
-                   <input type="file" accept=".zip" onChange={(e) => setBasinZip(e.target.files?.[0] ?? null)} />
-                   <Button size="sm" onClick={async () => {
-                     if (!basinZip) { alert('Select a ZIP containing the basin shapefile first'); return; }
-                     try {
-                       setIsLoading(true);
-                       const res = await uploadBasinShapefile(basinZip);
-                       alert(JSON.stringify(res));
-                       if (selectedLayers.biodiversity) { delete dataCacheRef.current["biodiversity"]; removeLayer("biodiversity"); await loadLayerData("biodiversity"); }
-                     } catch (e: any) { alert(e?.message ?? String(e)); } finally { setIsLoading(false); }
-                   }}>Upload Basin ZIP</Button>
+                 <p className="text-sm text-gray-600 dark:text-slate-300">Shapefile uploads are available on the Upload / Admin page.</p>
+                 <div className="flex gap-2">
+                   <Button asChild size="sm" className="bg-[#34A0A4] hover:bg-[#2A8084]">
+                     <Link to="/upload">Go to Upload</Link>
+                   </Button>
                  </div>
                </div>
              </div>
@@ -593,42 +572,4 @@ function App() {
              {selectedFeature && (
                <div className="border-t pt-4">
                  <h4 className="font-medium mb-2">Selected Feature</h4>
-                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg text-sm space-y-1">
-                   <div className="font-medium">{selectedFeature.name ?? "Unnamed feature"}</div>
-                   {Object.entries(selectedFeature)
-                     .filter(([k]) => k !== "name" && k !== "layerType")
-                     .map(([k, v]) => (
-                       <div key={k} className="flex justify-between">
-                         <span className="text-gray-600 dark:text-slate-300 capitalize">{k}:</span>
-                         <span>{Array.isArray(v) ? v.join(", ") : String(v)}</span>
-                       </div>
-                     ))}
-                 </div>
-               </div>
-             )}
-
-             {/* Actions */}
-             <div className="border-t pt-4 space-y-2">
-              <Button onClick={exportData} className="w-full bg-[#52B788] hover:bg-[#40916C] dark:bg-[#168AAD] dark:hover:bg-[#1A759F]" size="sm">
-                 <Download className="h-4 w-4 mr-2" />
-                 Export Data
-               </Button>
-               <Button onClick={() => setSelectedFeature(null)} variant="outline" className="w-full" size="sm">
-                 <Filter className="h-4 w-4 mr-2" />
-                 Clear Selection
-               </Button>
-             </div>
-           </CardContent>
-         </Card>
-
-         {/* Map Container */}
-         <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
-           <div ref={mapRef} id="map" className="w-full h-[500px] rounded-lg" />
-         </Card>
-       </div>
-     </div>
-   );
- }
-
- export default App;
-
+                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg
