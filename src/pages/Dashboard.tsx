@@ -22,6 +22,7 @@ import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { fetchGeoData } from "../api";
+import { addGroundwaterPoint, updateStream, uploadStreamShapefile, uploadBasinShapefile } from "../api";
 import { useTheme } from "@/components/theme-provider";
 
 /* ---------------------------
@@ -223,6 +224,19 @@ function App() {
 
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // New: small forms state for backend interactions
+  const [gwLat, setGwLat] = useState<string>("27.0");
+  const [gwLon, setGwLon] = useState<string>("79.0");
+  const [gwRL, setGwRL] = useState<string>("10");
+  const [gwDistrict, setGwDistrict] = useState<string>("");
+
+  const [streamId, setStreamId] = useState<string>("");
+  const [streamName, setStreamName] = useState<string>("");
+  const [streamRemarks, setStreamRemarks] = useState<string>("");
+
+  const [streamZip, setStreamZip] = useState<File | null>(null);
+  const [basinZip, setBasinZip] = useState<File | null>(null);
 
   // Init Leaflet map once
   useEffect(() => {
@@ -488,6 +502,93 @@ function App() {
                </div>
              </div>
 
+             {/* Backend Actions: Add groundwater, update stream, upload shapefiles */}
+             <div className="border-t pt-4 space-y-3">
+               <h4 className="font-medium mb-2">Backend Actions</h4>
+
+               {/* Add Groundwater Point */}
+               <div className="space-y-2 text-sm">
+                 <div className="flex gap-2">
+                   <input className="border p-1 rounded w-1/3" value={gwLat} onChange={(e) => setGwLat(e.target.value)} placeholder="lat" />
+                   <input className="border p-1 rounded w-1/3" value={gwLon} onChange={(e) => setGwLon(e.target.value)} placeholder="lon" />
+                   <input className="border p-1 rounded w-1/3" value={gwRL} onChange={(e) => setGwRL(e.target.value)} placeholder="water level" />
+                 </div>
+                 <input className="border p-1 rounded w-full" value={gwDistrict} onChange={(e) => setGwDistrict(e.target.value)} placeholder="district (optional)" />
+                 <div className="flex gap-2">
+                   <Button size="sm" onClick={async () => {
+                     try {
+                       setIsLoading(true);
+                       const res = await addGroundwaterPoint(parseFloat(gwLat), parseFloat(gwLon), parseFloat(gwRL), gwDistrict);
+                       // refresh groundwater layer if active
+                       if (selectedLayers.waterQuality) {
+                         delete dataCacheRef.current["waterQuality"];
+                         removeLayer("waterQuality");
+                         await loadLayerData("waterQuality");
+                       }
+                       alert(JSON.stringify(res));
+                     } catch (e: any) {
+                       alert(e?.message ?? String(e));
+                     } finally { setIsLoading(false); }
+                   }}>Add GW Point</Button>
+                 </div>
+               </div>
+
+               {/* Update Stream Metadata */}
+               <div className="space-y-2 text-sm">
+                 <div className="flex gap-2">
+                   <input className="border p-1 rounded w-1/3" value={streamId} onChange={(e) => setStreamId(e.target.value)} placeholder="id" />
+                   <input className="border p-1 rounded w-1/3" value={streamName} onChange={(e) => setStreamName(e.target.value)} placeholder="name" />
+                 </div>
+                 <input className="border p-1 rounded w-full" value={streamRemarks} onChange={(e) => setStreamRemarks(e.target.value)} placeholder="remarks" />
+                 <div className="flex gap-2">
+                   <Button size="sm" onClick={async () => {
+                     try {
+                       setIsLoading(true);
+                       const res = await updateStream(parseInt(streamId, 10), streamName, streamRemarks);
+                       // refresh river segments if active
+                       if (selectedLayers.riverSegments) {
+                         delete dataCacheRef.current["riverSegments"];
+                         removeLayer("riverSegments");
+                         await loadLayerData("riverSegments");
+                       }
+                       alert(JSON.stringify(res));
+                     } catch (e: any) {
+                       alert(e?.message ?? String(e));
+                     } finally { setIsLoading(false); }
+                   }}>Update Stream</Button>
+                 </div>
+               </div>
+
+               {/* Upload Shapefiles */}
+               <div className="space-y-2 text-sm">
+                 <div className="flex items-center gap-2">
+                   <input type="file" accept=".zip" onChange={(e) => setStreamZip(e.target.files?.[0] ?? null)} />
+                   <Button size="sm" onClick={async () => {
+                     if (!streamZip) { alert('Select a ZIP containing the shapefile first'); return; }
+                     try {
+                       setIsLoading(true);
+                       const res = await uploadStreamShapefile(streamZip);
+                       alert(JSON.stringify(res));
+                       if (selectedLayers.riverSegments) { delete dataCacheRef.current["riverSegments"]; removeLayer("riverSegments"); await loadLayerData("riverSegments"); }
+                     } catch (e: any) { alert(e?.message ?? String(e)); } finally { setIsLoading(false); }
+                   }}>Upload Stream ZIP</Button>
+                 </div>
+
+                 <div className="flex items-center gap-2">
+                   <input type="file" accept=".zip" onChange={(e) => setBasinZip(e.target.files?.[0] ?? null)} />
+                   <Button size="sm" onClick={async () => {
+                     if (!basinZip) { alert('Select a ZIP containing the basin shapefile first'); return; }
+                     try {
+                       setIsLoading(true);
+                       const res = await uploadBasinShapefile(basinZip);
+                       alert(JSON.stringify(res));
+                       if (selectedLayers.biodiversity) { delete dataCacheRef.current["biodiversity"]; removeLayer("biodiversity"); await loadLayerData("biodiversity"); }
+                     } catch (e: any) { alert(e?.message ?? String(e)); } finally { setIsLoading(false); }
+                   }}>Upload Basin ZIP</Button>
+                 </div>
+               </div>
+             </div>
+
              {/* Feature Details */}
              {selectedFeature && (
                <div className="border-t pt-4">
@@ -530,3 +631,4 @@ function App() {
  }
 
  export default App;
+
