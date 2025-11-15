@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const API_BASE = "http://127.0.0.1:8000"; // ← your backend
 
 // ================= Interfaces ===================
@@ -24,9 +24,6 @@ interface EventItem {
   date: string;
   location: string;
 }
-
-const currentUser = "Harsh";
-
 // ======================================================
 // MAIN PAGE
 // ======================================================
@@ -37,7 +34,7 @@ const ViewPage: React.FC = () => {
 
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
-
+  const navigate = useNavigate();
   const [modalImage, setModalImage] = useState<string | null>(null);
 
   // Utility
@@ -88,6 +85,13 @@ const ViewPage: React.FC = () => {
     setSearchTerm("");
     setFilteredPosts(allPosts);
   };
+ const [currentUser, setCurrentUser] = useState("");
+
+useEffect(() => {
+  fetch(`${API_BASE}/simple_user`)
+    .then(res => res.json())
+    .then(data => setCurrentUser(data.username));
+}, []);
 
   // Modal
   const openModal = (image: string) => setModalImage(image);
@@ -184,7 +188,12 @@ const ViewPage: React.FC = () => {
         .modal-image { width: 100%; border-radius: 10px; }
         .close-btn { font-size: 28px; cursor: pointer; float: right; }
       `}</style>
-
+    <button
+        onClick={() => navigate("/dashboard")}
+        className="self-start mb-6 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
+      >
+        ← Back to Dashboard
+      </button>
       {/* Header */}
       <header className="header">
         <h1>Posts & Updates</h1>
