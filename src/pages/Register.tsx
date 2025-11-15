@@ -9,7 +9,6 @@ export default function Register() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    mobile: "",
     password: "",
   });
 
@@ -80,19 +79,6 @@ export default function Register() {
                 placeholder="Email"
                 className="pl-10 text-[20px]"
                 value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="relative">
-              <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <Input
-                name="mobile"
-                type="tel"
-                placeholder="Mobile Number"
-                className="pl-10 text-[20px]"
-                value={formData.mobile}
                 onChange={handleChange}
                 required
               />
