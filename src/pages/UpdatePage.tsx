@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 interface Post {
   id: number;
   title: string;
@@ -29,7 +29,7 @@ const UpdatePage: React.FC = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryItem[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [modalSrc, setModalSrc] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   const [postTitle, setPostTitle] = useState("");
   const [postContent, setPostContent] = useState("");
   const [postImageFile, setPostImageFile] = useState<File | null>(null);
@@ -40,6 +40,13 @@ const UpdatePage: React.FC = () => {
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
+  const [currentUser, setCurrentUser] = useState("");
+
+useEffect(() => {
+  fetch(`${API_BASE}/simple_user`)
+    .then(res => res.json())
+    .then(data => setCurrentUser(data.username));
+}, []);
 
   // UI state
   const [loading, setLoading] = useState(false); // global network activity
@@ -122,7 +129,7 @@ const UpdatePage: React.FC = () => {
         content: postContent.trim(),
         date: new Date().toISOString(),
         image: null,
-        username: "Harsh", // change or make dynamic
+        username: currentUser, // change or make dynamic
       };
 
       // If user selected file, convert to base64 (assumption: backend accepts base64 string in `image`)
@@ -536,7 +543,12 @@ const UpdatePage: React.FC = () => {
     color: white;
   }
 `}</style>
-
+ <button
+        onClick={() => navigate("/dashboard")}
+        className="self-start mb-6 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
+      >
+        ← Back to Dashboard
+      </button>
       <div className="page">
         <div className="container">
           <div className="header">
