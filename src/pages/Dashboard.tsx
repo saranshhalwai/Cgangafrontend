@@ -115,36 +115,6 @@ const dummyData = {
     },
   },
 
-  pollutionSources: {
-    name: "Pollution Sources",
-    color: "#DC2626",
-    data: {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {
-            name: "Industrial Discharge Point A",
-            type: "Industrial",
-            severity: "High",
-            contaminants: ["Heavy Metals", "Chemicals"],
-          },
-          geometry: { type: "Point", coordinates: [80.2707, 26.4499] },
-        },
-        {
-          type: "Feature",
-          properties: {
-            name: "Sewage Treatment Plant",
-            type: "Municipal",
-            severity: "Medium",
-            contaminants: ["Organic Matter", "Pathogens"],
-          },
-          geometry: { type: "Point", coordinates: [78.0322, 29.9652] },
-        },
-      ],
-    },
-  },
-
   biodiversity: {
     name: "Biodiversity Hotspots",
     color: "#059669",
@@ -192,11 +162,6 @@ const layerConfig = {
     color: "#0891B2",
     endpoint: "/api/hindon_stream_network",
   },
-  pollutionSources: {
-    name: "Pollution Sources",
-    color: "#DC2626",
-    endpoint: "/api/ugc_stations", // use appropriate endpoint for pollution data if different
-  },
   biodiversity: {
     name: "Biodiversity Hotspots",
     color: "#059669",
@@ -214,12 +179,12 @@ function App() {
   // Cache GeoJSON data returned for each layer key
   const dataCacheRef = useRef<Record<string, any>>({});
 
+  // initialize selected layers to match current layerConfig keys
   const [selectedLayers, setSelectedLayers] = useState<Record<LayerKey, boolean>>({
     waterQuality: true,
     riverSegments: true,
-    pollutionSources: false,
     biodiversity: false,
-  });
+  } as Record<LayerKey, boolean>);
 
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -268,7 +233,9 @@ function App() {
     if (layersRef.current[key]) {
       try {
         leafletMap.current.removeLayer(layersRef.current[key] as Layer);
-      } catch {}
+      } catch (err) {
+        console.warn('Failed to remove existing layer', err);
+      }
       delete layersRef.current[key];
     }
 
@@ -313,7 +280,9 @@ function App() {
     if (inst && leafletMap.current) {
       try {
         leafletMap.current.removeLayer(inst as Layer);
-      } catch {}
+      } catch (err) {
+        console.warn('Failed to remove layer instance', err);
+      }
       delete layersRef.current[key];
     }
     // remove cached feature selection if it belonged to this layer
