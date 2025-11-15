@@ -4,10 +4,11 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import VerifyEmail from "./pages/VerifyEmail";
 import UploadPage from "./pages/Upload";
-import ViewPage from "./pages/ViewPage";
-import UpdatePage from "./pages/UpdatePage";
-
+import Profile from "./pages/Profile";
+import UpdatePage from "./pages/UpdatePage"
+import ViewPage from  "./pages/ViewPage"
 function App() {
+  // Simple authentication check
   const isLoggedIn = !!localStorage.getItem("token");
 
   return (
@@ -16,23 +17,24 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify/:token" element={<VerifyEmail />} />
-
-      {/* Protected routes */}
+       <Route path="/profile" element={<Profile />} />
+      {/* Protected route */}
       <Route
         path="/dashboard"
-        element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" replace />}
+        element={
+          isLoggedIn ? <Dashboard /> : <Navigate to="/login" replace />
+
+        }
       />
-      <Route
-        path="/upload"
-        element={isLoggedIn ? <UploadPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/update"
-        element={isLoggedIn ? <UpdatePage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/view"
-        element={isLoggedIn ? <ViewPage /> : <Navigate to="/login" replace />}
+
+      <Route path="/UpdatePage"
+        element={isLoggedIn ? <UpdatePage/> : <Navigate to="/login" replace/>}/>
+
+      <Route path="/ViewPage" element={isLoggedIn ? <ViewPage/> : <Navigate to="/login" replace/>}/>
+      <Route path="/upload"
+      element={
+        isLoggedIn? <UploadPage /> : <Navigate to="/login" replace />
+      }
       />
 
       {/* Redirect any unknown path */}
@@ -45,5 +47,4 @@ function App() {
     </Routes>
   );
 }
-
 export default App;

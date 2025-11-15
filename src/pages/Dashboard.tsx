@@ -440,6 +440,22 @@ function App() {
               <div className="flex items-center gap-2">
                 <Button onClick={cycleTheme} size="sm" variant="outline">{theme === "system" ? "Auto" : theme === "dark" ? "Dark" : "Light"}</Button>
                 <Button onClick={handleLogout} size="sm" className="ml-2 bg-red-600 hover:bg-red-700 text-white">Logout</Button>
+                 <Link to="/profile">
+  <button className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition">
+    View Profile
+  </button>
+</Link>
+<Link to="/UpdatePage">
+  <button className="px-4 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition">
+    Post
+  </button>
+</Link>
+
+<Link to="/ViewPage">
+  <button className="px-4 py-2 bg-purple-600 text-white rounded-xl shadow hover:bg-purple-700 transition">
+    View Gallery
+  </button>
+</Link>
                 <Button asChild size="sm" className="ml-2">
                   <Link to="/upload" className="whitespace-nowrap">Upload / Admin</Link>
                 </Button>
