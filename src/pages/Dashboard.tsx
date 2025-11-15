@@ -1,5 +1,4 @@
-// eslint-disable-next-line max-lines
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-function, no-empty */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/App.tsx
 import { useEffect, useRef, useState } from "react";
 import {
@@ -22,8 +21,8 @@ import { MapPin, Layers, BarChart3, Download, Filter } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { fetchGeoData } from "../api";
-import { addGroundwaterPoint, updateStream } from "../api";
 import { useTheme } from "@/components/theme-provider";
+import { isAdmin as authIsAdmin } from "../lib/auth";
 
 /* ---------------------------
    Your existing dummy data (kept as fallback)
@@ -225,15 +224,20 @@ function App() {
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // New: small forms state for backend interactions
-  const [gwLat, setGwLat] = useState<string>("27.0");
-  const [gwLon, setGwLon] = useState<string>("79.0");
-  const [gwRL, setGwRL] = useState<string>("10");
-  const [gwDistrict, setGwDistrict] = useState<string>("");
-
-  const [streamId, setStreamId] = useState<string>("");
-  const [streamName, setStreamName] = useState<string>("");
-  const [streamRemarks, setStreamRemarks] = useState<string>("");
+  // Show admin-only controls based on user role stored in localStorage
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  useEffect(() => {
+    // helper to refresh admin flag
+    const refresh = () => setIsAdmin(Boolean(authIsAdmin()));
+    // set initial
+    refresh();
+    // listen for storage changes (helps when role/token is set in another tab)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "token" || e.key === "role" || e.key === null) refresh();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   // Init Leaflet map once
   useEffect(() => {
@@ -277,7 +281,7 @@ function App() {
       pointToLayer: (_feature, latlng) =>
         circleMarker(latlng, {
           // Make groundwater / waterQuality markers smaller for better visual hierarchy
-          radius: key === "waterQuality" ? 5 : 8,
+          radius: key === "waterQuality" ? 3 : 5,
           color,
           fillColor: color,
           weight: key === "waterQuality" ? 1.5 : 2,
@@ -416,6 +420,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
     navigate("/login");
   };
 
@@ -426,7 +431,7 @@ function App() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#34A0A4] to-[#52B788] dark:from-[#184E77] dark:to-[#1A759F] min-h-screen">
+    <div className="bg-gradient-to-b from-[#34A0A4] to-[#52B788] dark:from-[#184E77] dark:to-[#1A759F] min-h-screen flex flex-col">
       {/* Header */}
       <div className="p-4 bg-gradient-to-r from-[#99D98C] to-[#B5E48C] dark:from-[#168AAD] dark:to-[#1A759F]">
         <Card className="shadow-lg">
@@ -445,27 +450,31 @@ function App() {
     View Profile
   </button>
 </Link>
-<Link to="/UpdatePage">
-  <button className="px-4 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition">
-    Post
-  </button>
-</Link>
+{isAdmin && (
+  <Link to="/UpdatePage">
+    <button className="px-4 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition">
+      Post
+    </button>
+  </Link>
+)}
 
 <Link to="/ViewPage">
   <button className="px-4 py-2 bg-purple-600 text-white rounded-xl shadow hover:bg-purple-700 transition">
     View Gallery
   </button>
 </Link>
-                <Button asChild size="sm" className="ml-2">
-                  <Link to="/upload" className="whitespace-nowrap">Upload / Admin</Link>
-                </Button>
+{isAdmin && (
+  <Button asChild size="sm" className="ml-2">
+    <Link to="/upload" className="whitespace-nowrap">Upload / Admin</Link>
+  </Button>
+)}
               </div>
             </div>
            </CardHeader>
          </Card>
        </div>
 
-       <div className="flex gap-4 p-4 h-[calc(100vh-140px)]">
+       <div className="flex gap-4 p-4 flex-1 overflow-hidden min-h-0">
          {/* Control Panel */}
          <Card className="w-80 shadow-lg overflow-y-auto">
            <CardHeader className="pb-3">
@@ -501,7 +510,7 @@ function App() {
                       />
                       <span className="text-sm font-medium">{cfg.name}</span>
                     </div>
-                    <Switch checked={!!selectedLayers[key]} onCheckedChange={() => toggleLayer(key)} />
+                    <Switch checked={selectedLayers[key]} onCheckedChange={() => toggleLayer(key)} />
                   </div>
                 );
               })}
@@ -549,8 +558,8 @@ function App() {
          </Card>
 
          {/* Map Container */}
-         <Card className="h-[calc(100vh-140px)] w-[calc(100vw-320px)] flex-1 shadow-lg overflow-hidden">
-           <div ref={mapRef} id="map" className="w-full h-[100%]" />
+         <Card className="flex-1 shadow-lg overflow-hidden min-h-0">
+           <div ref={mapRef} id="map" className="w-full h-full" />
          </Card>
        </div>
      </div>

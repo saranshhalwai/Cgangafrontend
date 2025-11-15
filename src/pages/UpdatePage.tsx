@@ -296,543 +296,89 @@ useEffect(() => {
 
   // --- JSX ---
   return (
-    <>
-      {/* Inline CSS: gradient background and layout */}
-     <style>{`
-  /* Global reset */
-  * {
-    box-sizing: border-box;
-  }
+    <div className="min-h-screen p-6 bg-gradient-to-b from-[#34A0A4] to-[#52B788]">
+      <div className="max-w-6xl mx-auto">
+        <button onClick={() => navigate("/dashboard")} className="mb-6 px-4 py-2 bg-[#52B788] text-white rounded-lg shadow hover:bg-[#40916C] transition">
+          ← Back to Dashboard
+        </button>
 
-  html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(to bottom, #d4f4dd, #ffffff) !important;
-    background-attachment: fixed;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
-
-  /* Page wrapper */
-  .page {
-    min-height: 100vh;
-    padding: 28px 12px;
-    width: 100%;
-    background: transparent !important; /* ensure Gradient shows behind */
-  }
-
-  /* Layout containers */
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-    gap: 12px;
-  }
-
-  .header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    color: #12411b;
-  }
-
-  .subtitle {
-    color: #4b5563;
-  }
-
-  .layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 20px;
-  }
-
-  @media (max-width: 980px) {
-    .layout {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Cards */
-  .card {
-    background: #fff;
-    border-radius: 10px;
-    min-height: 10vh;
-    padding: 16px;
-    box-shadow: 0 6px 18px rgba(12, 20, 15, 0.06);
-  }
-
-  .section-title {
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #0b3920;
-  }
-
-  /* Form elements */
-  .form-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .full {
-    width: 100%;
-  }
-
-  input[type="text"],
-  textarea,
-  input[type="datetime-local"] {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    font-size: 14px;
-  }
-
-  textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-
-  /* Buttons */
-  .btn {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-  }
-
-  .btn-primary {
-    background: #0b8a4a;
-    color: white;
-  }
-
-  .btn-secondary {
-    background: #edf2f7;
-    color: #111;
-  }
-
-  .small {
-    padding: 8px 10px;
-    font-size: 13px;
-  }
-
-  /* Posts */
-  .posts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-height: 220px;
-  }
-
-  .post-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .post-meta {
-    display: flex;
-    gap: 10px;
-    color: #6b7280;
-    font-size: 13px;
-  }
-
-  .post-image {
-    width: 100%;
-    max-height: 360px;
-    object-fit: cover;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
-  /* Gallery */
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
-    min-height: 120px;
-  }
-
-  .gallery-thumb {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  /* Events */
-  .events-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-height: 120px;
-  }
-
-  .event-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .muted {
-    color: #6b7280;
-    font-size: 13px;
-  }
-
-  /* Spinner overlay — hidden by default */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    display: none; /* ONLY visible when you add .active */
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.25);
-    z-index: 1200;
-  }
-
-  .overlay.active {
-    display: flex;
-  }
-
-  .spinner {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: 6px solid rgba(255,255,255,0.25);
-    border-top-color: white;
-    animation: spin 1s linear infinite;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Helpers */
-  .right-column-fix {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .caption {
-    font-size: 13px;
-    color: #374151;
-  }
-
-  .controls-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .danger {
-    background: #ef4444;
-    color: white;
-  }
-`}</style>
- <button
-        onClick={() => navigate("/dashboard")}
-        className="self-start mb-6 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
-      >
-        ← Back to Dashboard
-      </button>
-      <div className="page">
-        <div className="container">
-          <div className="header">
-            <div>
-              <h1>Update Info Here!</h1>
-              <div className="subtitle">Collaborate, share and make a difference</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Post creation */}
+          <div className="bg-white/95 dark:bg-[#062a3a] p-4 rounded-xl shadow">
+            <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">Create Post</h3>
+            <input className="w-full p-2 border rounded mb-2" placeholder="Title" value={postTitle} onChange={(e) => setPostTitle(e.target.value)} />
+            <textarea className="w-full p-2 border rounded mb-2 bg-white dark:bg-[#0b2a36] text-slate-900 dark:text-white" placeholder="Content" value={postContent} onChange={(e) => setPostContent(e.target.value)} />
+            <input type="file" accept="image/*" onChange={(e) => setPostImageFile(e.target.files?.[0] ?? null)} />
+            <div className="mt-2 flex gap-2">
+              <button onClick={addPost} className="px-4 py-2 bg-primary text-white rounded">
+                {posting ? "Posting..." : "Post"}
+              </button>
             </div>
           </div>
 
-          <div className="layout">
-            {/* Left: main (posts, gallery, events list) */}
-            <div>
-              {/* POSTS card */}
-              <div className="card" style={containerMinHeight}>
-                <div className="section-title">Environmental Updates</div>
-
-                <div style={{ marginBottom: 12 }}>
-                  <input
-                    className="full"
-                    type="text"
-                    placeholder="Post title"
-                    value={postTitle}
-                    onChange={(e) => setPostTitle(e.target.value)}
-                    disabled={loading || posting}
-                  />
-                </div>
-
-                <div style={{ marginBottom: 12 }}>
-                  <textarea
-                    className="full"
-                    placeholder="Share environmental news or updates..."
-                    value={postContent}
-                    onChange={(e) => setPostContent(e.target.value)}
-                    disabled={loading || posting}
-                  />
-                </div>
-
-                <div className="form-row" style={{ alignItems: "center", marginBottom: 12 }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setPostImageFile(e.target.files?.[0] || null)}
-                    disabled={loading || posting}
-                  />
-                  <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-                    <button
-                      className="btn btn-primary"
-                      onClick={addPost}
-                      disabled={loading || posting}
-                    >
-                      Post Update
-                    </button>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => {
-                        setPostTitle("");
-                        setPostContent("");
-                        setPostImageFile(null);
-                      }}
-                      disabled={loading || posting}
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-
-                <div className="posts-list" aria-live="polite">
-                  {posts.length === 0 ? (
-                    <div className="muted">No posts yet.</div>
-                  ) : (
-                    posts
-                      .slice()
-                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                      .map((p) => (
-                        <PostCardCompact
-                          key={p.id}
-                          post={p}
-                          onDelete={deletePost}
-                          onSave={handleSaveEditedPost}
-                          onImageClick={openModal}
-                        />
-                      ))
-                  )}
-                </div>
-              </div>
-
-              {/* GALLERY card */}
-              <div className="card" style={{ marginTop: 16 }}>
-                <div className="section-title">Activity Gallery</div>
-
-                <div className="form-row" style={{ marginBottom: 12 }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setGalleryFile(e.target.files?.[0] || null)}
-                    disabled={loading}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Caption (optional)"
-                    className="full"
-                    value={galleryCaption}
-                    onChange={(e) => setGalleryCaption(e.target.value)}
-                    disabled={loading}
-                  />
-                  <button className="btn btn-primary" onClick={addGalleryImage} disabled={loading}>
-                    Upload
-                  </button>
-                </div>
-
-                <div className="gallery-grid">
-                  {galleryImages.length === 0 ? (
-                    <div className="muted">No images yet</div>
-                  ) : (
-                    galleryImages.map((g) => (
-                      <div key={g.id}>
-                        <img
-                          src={g.src}
-                          alt={g.caption}
-                          className="gallery-thumb"
-                          onClick={() => openModal(g.src)}
-                        />
-                        <div className="caption">{g.caption}</div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* EVENTS card */}
-              <div className="card" style={{ marginTop: 16 }}>
-                <div className="section-title">Upcoming Events</div>
-
-                <div style={{ display: "grid", gap: 8, gridTemplateColumns: "1fr 1fr" }}>
-                  <input
-                    type="text"
-                    placeholder="Event name"
-                    value={eventName}
-                    onChange={(e) => setEventName(e.target.value)}
-                    disabled={loading}
-                  />
-                  <input
-                    type="datetime-local"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    className="full"
-                    value={eventLocation}
-                    onChange={(e) => setEventLocation(e.target.value)}
-                    disabled={loading}
-                  />
-                  <button className="btn btn-primary" onClick={addEvent} disabled={loading}>
-                    Add
-                  </button>
-                </div>
-
-                <div className="events-list" style={{ marginTop: 12 }}>
-                  {events.length === 0 ? (
-                    <div className="muted">No upcoming events</div>
-                  ) : (
-                    events
-                      .slice()
-                      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                      .map((ev) => (
-                        <div className="event-row card" key={ev.id}>
-                          <div>
-                            <div style={{ fontWeight: 600 }}>{escapeHtml(ev.name)}</div>
-                            <div className="muted">{new Date(ev.date).toLocaleString()}</div>
-                            <div className="muted">📍 {escapeHtml(ev.location)}</div>
-                          </div>
-                          <div style={{ display: "flex", gap: 8 }}>
-                            <button
-                              className="btn small"
-                              onClick={() => {
-                                // quick add to calendar or copy link - placeholder
-                                alert("Not implemented");
-                              }}
-                            >
-                              Details
-                            </button>
-                            <button className="btn danger small" onClick={() => deleteEvent(ev.id)}>
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                  )}
-                </div>
+          {/* Gallery & Events */}
+          <div className="space-y-4">
+            <div className="bg-white/95 dark:bg-[#062a3a] p-4 rounded-xl shadow">
+              <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">Upload to Gallery</h3>
+              <input type="file" accept="image/*" onChange={(e) => setGalleryFile(e.target.files?.[0] ?? null)} />
+              <input className="w-full p-2 border rounded my-2" placeholder="Caption" value={galleryCaption} onChange={(e) => setGalleryCaption(e.target.value)} />
+              <div className="flex gap-2">
+                <button onClick={addGalleryImage} className="px-3 py-1 bg-primary text-white rounded">
+                  Upload
+                </button>
               </div>
             </div>
 
-            {/* Right column: control panel (keeps stable white area) */}
-            <aside className="right-column-fix">
-              <div className="card">
-                <div className="section-title">Status</div>
-                <div className="caption">Network: {loading ? "Busy" : "Idle"}</div>
-                <div style={{ marginTop: 12 }}>
-                  <div className="caption">Quick actions</div>
-                  <div style={{ marginTop: 8 }} className="controls-row">
-                    <button
-                      className="btn small"
-                      onClick={() => {
-                        // refresh lists
-                        (async () => {
-                          setLoading(true);
-                          try {
-                            const [pRes, gRes, eRes] = await Promise.all([
-                              fetch(`${API_BASE}/posts`),
-                              fetch(`${API_BASE}/gallery`),
-                              fetch(`${API_BASE}/events`),
-                            ]);
-                            if (pRes.ok) setPosts(await pRes.json());
-                            if (gRes.ok) setGalleryImages(await gRes.json());
-                            if (eRes.ok) setEvents(await eRes.json());
-                            alert("Refreshed");
-                          } catch (err) {
-                            console.error(err);
-                            alert("Refresh failed");
-                          } finally {
-                            setLoading(false);
-                          }
-                        })();
-                      }}
-                    >
-                      Refresh
-                    </button>
-
-                    <button
-                      className="btn small"
-                      onClick={() => {
-                        setPosts([]);
-                        setGalleryImages([]);
-                        setEvents([]);
-                        alert("Cleared UI (not server)");
-                      }}
-                    >
-                      Clear UI
-                    </button>
-                  </div>
-                </div>
+            <div className="bg-white/95 dark:bg-[#062a3a] p-4 rounded-xl shadow">
+              <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">Schedule Event</h3>
+              <input className="w-full p-2 border rounded mb-2" placeholder="Event name" value={eventName} onChange={(e) => setEventName(e.target.value)} />
+              <input type="datetime-local" className="w-full p-2 border rounded mb-2" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+              <input className="w-full p-2 border rounded mb-2" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} />
+              <div className="flex gap-2">
+                <button onClick={addEvent} className="px-3 py-1 bg-primary text-white rounded">
+                  Add Event
+                </button>
               </div>
-
-            </aside>
+            </div>
           </div>
         </div>
 
-        {/* Modal for viewing images */}
-        {modalSrc && (
-          <div
-            className="overlay"
-            onClick={() => {
-              closeModal();
-            }}
-          >
-            <div
-              className="card"
-              style={{ maxWidth: 920, width: "92%", padding: 12 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button className="btn" onClick={() => setModalSrc(null)}>
-                  Close
-                </button>
+        {/* Existing posts list */}
+        <div className="mt-6">
+          <h3 className="font-semibold text-white">Existing Posts</h3>
+          <div className="space-y-3 mt-3">
+            {posts.map((p) => (
+              <div key={p.id} className="bg-white/95 dark:bg-[#062a3a] p-3 rounded-md shadow flex justify-between items-center">
+                <div>
+                  <div className="font-semibold text-slate-900 dark:text-white">{p.title}</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-300">{p.username} - {p.date}</div>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-2 py-1 bg-blue-600 text-white rounded" onClick={() => openModal(p.image ?? '')}>
+                    View
+                  </button>
+                  <button className="px-2 py-1 bg-red-600 text-white rounded" onClick={() => deletePost(p.id)}>
+                    Delete
+                  </button>
+                </div>
               </div>
-              <img src={modalSrc} alt="full" style={{ width: "100%", borderRadius: 8 }} />
-            </div>
+            ))}
           </div>
-        )}
-
-        {/* Loading overlay spinner */}
-        {loading && (
-          <div className="overlay" aria-hidden>
-            <div className="spinner" />
-          </div>
-        )}
+        </div>
       </div>
-    </>
+
+      {/* Modal */}
+      {modalSrc && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={closeModal}>
+          <div className="bg-white dark:bg-[#071722] p-4 rounded-md max-w-[90%] max-h-[90%] overflow-auto" onClick={(e) => e.stopPropagation()}>
+            <button className="float-right text-xl" onClick={closeModal}>
+              &times;
+            </button>
+            {modalSrc && <img src={modalSrc} className="w-full h-auto rounded-md" />}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

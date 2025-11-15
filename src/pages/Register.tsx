@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Lock, Phone, MapPin } from "lucide-react";
+import { User, Mail, Lock, MapPin } from "lucide-react";
 export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -24,13 +24,13 @@ export default function Register() {
       method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json" 
+            "Accept": "application/json"
         },
       body: JSON.stringify({
         username: formData.username,
         email: formData.email,
           password: formData.password,
-          
+        role: "user",
       }),
     });
     if (!res.ok) {
@@ -51,36 +51,36 @@ export default function Register() {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#34A0A4] to-[#52B788] p-4">
-      <Card className="w-full max-w-5xl h-[600px] shadow-xl rounded-4xl overflow-hidden bg-white/90 backdrop-blur-lg opacity-90">
-        <CardHeader className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 ">
-            <MapPin className="h-8 w-8 mt-[20px] text-[#34A0A4]" />
-            <h1 className="text-2xl mt-[20px] font-[jersey-10] font-bold text-gray-800">CGanga Data Visualizer</h1>
+    <div className="flex items-center justify-center min-h-screen p-6 bg-gradient-to-b from-[#34A0A4] to-[#52B788]">
+      <Card className="w-full max-w-3xl shadow-xl rounded-xl overflow-hidden">
+        <CardHeader className="text-center space-y-2 bg-transparent">
+          <div className="flex items-center justify-center gap-2 pt-6">
+            <MapPin className="h-8 w-8 text-white" />
+            <h1 className="text-2xl font-bold text-white">CGanga Data Visualizer</h1>
           </div>
-          <p className="text-gray-600  text-[24px] font-[jersey-10] text-sm">Create an account to continue</p>
+          <p className="text-white opacity-90">Create an account to continue</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 bg-white/95 dark:bg-[#062a3a]">
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="relative">
-              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-slate-300" />
               <Input
                 name="username"
                 type="text"
                 placeholder="Username"
-                className="pl-10 text-[20px]"
+                className="pl-10"
                 value={formData.username}
                 onChange={handleChange}
                 required
               />
             </div>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-slate-300" />
               <Input
                 name="email"
                 type="email"
                 placeholder="Email"
-                className="pl-10 text-[20px]"
+                className="pl-10"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -88,12 +88,12 @@ export default function Register() {
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-slate-300" />
               <Input
                 name="password"
                 type="password"
                 placeholder="Password"
-                className="pl-10 text-[20px]"
+                className="pl-10"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -102,14 +102,14 @@ export default function Register() {
 
             <Button
               type="submit"
-              className="w-full h-[48px] text-[28px] bg-[#52B788] hover:bg-gray-900  text-white font-semibold"
+              className="w-full btn-primary"
             >
               Register
             </Button>
 
-            <p className="text-center text-sm text-gray-600 text-[20px]">
-              Already have an account?{" "}
-              <Link to="/login" className="text-[#1E6091] hover:underline text-[22px]">
+            <p className="text-center text-sm text-gray-700 dark:text-slate-300">
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary hover:underline">
                 Login here
               </Link>
             </p>

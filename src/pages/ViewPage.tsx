@@ -124,155 +124,95 @@ useEffect(() => {
   }, []);
 
   return (
-    <div className="container">
-      {/* INLINE CSS */}
-      <style>{`
-        body {
-          background: linear-gradient(to bottom, #d4f4dd, #ffffff);
-          font-family: Arial, sans-serif;
-        }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    <div className="min-h-screen p-6 bg-gradient-to-b from-[#34A0A4] to-[#52B788]">
+      <div className="max-w-5xl mx-auto">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mb-6 px-4 py-2 bg-[#52B788] text-white rounded-lg shadow hover:bg-[#40916C] transition"
+        >
+          ← Back to Dashboard
+        </button>
 
-        .header { text-align: center; padding: 20px; }
-        .header h1 { font-size: 32px; margin-bottom: 5px; }
-        .subtitle { color: gray; }
+        {/* Header */}
+        <header className="mb-6">
+          <h1 className="text-2xl font-bold text-white">Posts & Updates</h1>
+          <p className="text-white/90">View posts, gallery & events</p>
+        </header>
 
-        .search-section { display: flex; justify-content: center; margin-bottom: 20px; }
-        .search-box { display: flex; gap: 10px; }
-
-        .search-input { padding: 10px; width: 250px; border-radius: 5px; border: 1px solid #ccc; }
-        .search-btn { padding: 10px 14px; background: #007bff; color: white; border-radius: 5px; border: none; }
-        .clear-btn { padding: 10px 14px; background: #ccc; border-radius: 5px; border: none; }
-
-        .posts-container { display: flex; flex-direction: column; gap: 20px; }
-        .post-card {
-          background: white;
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .gallery-section, .events-section {
-          background: white;
-          padding: 20px;
-          border-radius: 10px;
-          margin-top: 30px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .gallery-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 15px;
-        }
-
-        .gallery-img {
-          width: 100%;
-          height: 120px;
-          object-fit: cover;
-          border-radius: 10px;
-          cursor: pointer;
-        }
-
-        .event-item {
-          padding: 10px 0;
-          border-bottom: 1px solid #ddd;
-        }
-
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
-        .modal-content {
-          background: white; padding: 20px; border-radius: 10px;
-          max-width: 90%; max-height: 90%;
-        }
-        .modal-image { width: 100%; border-radius: 10px; }
-        .close-btn { font-size: 28px; cursor: pointer; float: right; }
-      `}</style>
-    <button
-        onClick={() => navigate("/dashboard")}
-        className="self-start mb-6 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
-      >
-        ← Back to Dashboard
-      </button>
-      {/* Header */}
-      <header className="header">
-        <h1>Posts & Updates</h1>
-        <p className="subtitle">View posts, gallery & events</p>
-      </header>
-
-      {/* Search */}
-      <div className="search-section">
-        <div className="search-box">
+        {/* Search */}
+        <div className="mb-6 flex gap-2">
           <input
-            className="search-input"
+            className="flex-1 p-2 rounded-md border border-transparent bg-white/90 dark:bg-[#0b2a36]"
             placeholder="Search by title or username"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button className="search-btn" onClick={handleSearch}>Search</button>
-          <button className="clear-btn" onClick={clearSearch}>Clear</button>
+          <button className="px-4 py-2 bg-white text-slate-800 rounded-md shadow" onClick={handleSearch}>Search</button>
+          <button className="px-4 py-2 bg-white/70 text-slate-700 rounded-md" onClick={clearSearch}>Clear</button>
         </div>
-      </div>
 
-      {/* POSTS */}
-      <div className="posts-container">
-        {filteredPosts.length === 0 ? (
-          <p className="empty-state">No posts yet...</p>
-        ) : (
-          filteredPosts
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                formatDate={formatDate}
-                truncateContent={truncateContent}
-                isOwner={post.username === currentUser}
-                onDelete={handleDelete}
-                onSave={handleSave}
-                onImageClick={openModal}
+        {/* POSTS */}
+        <div className="space-y-4">
+          {filteredPosts.length === 0 ? (
+            <p className="text-white">No posts yet...</p>
+          ) : (
+            filteredPosts
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  formatDate={formatDate}
+                  truncateContent={truncateContent}
+                  isOwner={post.username === currentUser}
+                  onDelete={handleDelete}
+                  onSave={handleSave}
+                  onImageClick={openModal}
+                />
+              ))
+          )}
+        </div>
+
+        {/* GALLERY */}
+        <section className="mt-8 bg-white/90 dark:bg-[#062a3a] p-4 rounded-xl shadow">
+          <h2 className="text-lg font-semibold mb-3">Gallery</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {gallery.map((g) => (
+              <img
+                key={g.id}
+                src={g.src}
+                className="w-full h-32 object-cover rounded-md cursor-pointer"
+                title={g.caption}
+                onClick={() => openModal(g.src)}
               />
-            ))
+            ))}
+          </div>
+        </section>
+
+        {/* EVENTS */}
+        <section className="mt-8 bg-white/90 dark:bg-[#062a3a] p-4 rounded-xl shadow">
+          <h2 className="text-lg font-semibold mb-3">Events</h2>
+          <div className="flex flex-col divide-y">
+            {events.map((ev) => (
+              <div key={ev.id} className="py-2">
+                <strong className="text-slate-800 dark:text-white">{ev.name}</strong> — <span className="text-sm text-slate-600 dark:text-slate-300">{ev.date}</span> <br />
+                <span className="text-sm text-slate-600 dark:text-slate-300">📍 {ev.location}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* MODAL */}
+        {modalImage && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={closeModal}>
+            <div className="bg-white dark:bg-[#071722] p-4 rounded-md max-w-[90%] max-h-[90%] overflow-auto" onClick={(e) => e.stopPropagation()}>
+              <button className="float-right text-xl" onClick={closeModal}>&times;</button>
+              <img src={modalImage} className="w-full h-auto rounded-md" />
+            </div>
+          </div>
         )}
       </div>
-
-      {/* GALLERY SECTION */}
-      <section className="gallery-section">
-        <h2>Gallery</h2>
-        <div className="gallery-grid">
-          {gallery.map((g) => (
-            <img
-              key={g.id}
-              src={g.src}
-              className="gallery-img"
-              title={g.caption}
-              onClick={() => openModal(g.src)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* EVENTS SECTION */}
-      <section className="events-section">
-        <h2>Events</h2>
-        {events.map((ev) => (
-          <div key={ev.id} className="event-item">
-            <strong>{ev.name}</strong> — {ev.date} <br />
-            📍 {ev.location}
-          </div>
-        ))}
-      </section>
-
-      {/* MODAL */}
-      {modalImage && (
-        <div className="modal" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <span className="close-btn" onClick={closeModal}>&times;</span>
-            <img src={modalImage} className="modal-image" />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -315,18 +255,18 @@ const PostCard: React.FC<PostCardProps> = ({
   };
 
   return (
-    <div className="post-card">
-      <h2>{editing ? "" : title}</h2>
+    <div className="bg-white/95 dark:bg-[#062a3a] p-4 rounded-lg shadow">
+      <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{editing ? "" : title}</h2>
 
       {editing && (
         <input
-          className="post-title-input"
+          className="w-full p-2 border rounded my-2"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       )}
 
-      <div className="post-meta">
+      <div className="text-sm text-slate-600 dark:text-slate-300 my-2">
         <strong>By:</strong> {post.username} &nbsp; | &nbsp;
         <strong>Date:</strong> {formatDate(post.date)}
       </div>
@@ -334,24 +274,24 @@ const PostCard: React.FC<PostCardProps> = ({
       {post.image && (
         <img
           src={post.image}
-          className="post-image"
+          className="w-full max-h-64 object-cover rounded my-3 cursor-pointer"
           onClick={() => onImageClick(post.image!)}
         />
       )}
 
-      <div className="post-content">
+      <div className="text-slate-800 dark:text-slate-100">
         {!editing ? (
           <>
             <p>{expanded ? content : truncateContent(content)}</p>
             {content.length > 300 && (
-              <button className="read-more-btn" onClick={() => setExpanded(!expanded)}>
+              <button className="mt-2 text-sm text-primary" onClick={() => setExpanded(!expanded)}>
                 {expanded ? "Read Less" : "Read More"}
               </button>
             )}
           </>
         ) : (
           <textarea
-            className="post-content-input"
+            className="w-full p-2 border rounded my-2 bg-white dark:bg-[#0b2a36] text-slate-900 dark:text-slate-100"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -359,23 +299,23 @@ const PostCard: React.FC<PostCardProps> = ({
       </div>
 
       {isOwner && (
-        <>
+        <div className="mt-3 flex gap-2">
           {!editing ? (
-            <div className="post-actions">
-              <button className="action-btn edit-btn" onClick={() => setEditing(true)}>
+            <>
+              <button className="px-3 py-1 bg-primary text-white rounded" onClick={() => setEditing(true)}>
                 Edit
               </button>
-              <button className="action-btn delete-btn" onClick={() => onDelete(post.id)}>
+              <button className="px-3 py-1 bg-red-600 text-white rounded" onClick={() => onDelete(post.id)}>
                 Delete
               </button>
-            </div>
+            </>
           ) : (
-            <div className="edit-actions">
-              <button className="save-btn" onClick={handleSave}>Save</button>
-              <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
-            </div>
+            <>
+              <button className="px-3 py-1 bg-green-600 text-white rounded" onClick={handleSave}>Save</button>
+              <button className="px-3 py-1 bg-gray-300 text-slate-800 rounded" onClick={() => setEditing(false)}>Cancel</button>
+            </>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -7,9 +7,12 @@ import UploadPage from "./pages/Upload";
 import Profile from "./pages/Profile";
 import UpdatePage from "./pages/UpdatePage"
 import ViewPage from  "./pages/ViewPage"
+import { isLoggedIn as checkLoggedIn, isAdmin } from "./lib/auth";
+
 function App() {
   // Simple authentication check
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = checkLoggedIn();
+  const isUserAdmin = isAdmin();
 
   return (
     <Routes>
@@ -28,12 +31,14 @@ function App() {
       />
 
       <Route path="/UpdatePage"
-        element={isLoggedIn ? <UpdatePage/> : <Navigate to="/login" replace/>}/>
+        element={isLoggedIn ? (isUserAdmin ? <UpdatePage /> : <Navigate to="/dashboard" replace />) : <Navigate to="/login" replace/>}/>
 
       <Route path="/ViewPage" element={isLoggedIn ? <ViewPage/> : <Navigate to="/login" replace/>}/>
       <Route path="/upload"
       element={
-        isLoggedIn? <UploadPage /> : <Navigate to="/login" replace />
+        isLoggedIn
+          ? (isUserAdmin ? <UploadPage /> : <Navigate to="/dashboard" replace />)
+          : <Navigate to="/login" replace />
       }
       />
 

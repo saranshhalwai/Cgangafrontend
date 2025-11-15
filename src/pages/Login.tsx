@@ -46,9 +46,9 @@ export default function Login() {
 
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-[#34A0A4] to-[#52B788]">
-      {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 text-white px-10">
+    <div className="min-h-screen flex items-stretch">
+      {/* Left panel: show only on large screens */}
+      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 text-white px-10 bg-gradient-to-br from-[#34A0A4] to-[#52B788]">
         <div className="text-center space-y-4">
           <MapPin className="h-12 w-12 mx-auto text-white" />
           <h1 className="text-4xl font-bold">CGanga Data Visualizer</h1>
@@ -57,15 +57,13 @@ export default function Login() {
       </div>
 
       {/* Right panel */}
-      <div className="flex items-center justify-center w-full lg:w-1/2 bg-gray-300 shadow-2xl">
-        <Card className="w-full max-h-11xl sm:max-w-5xl lg:max-w-4xl shadow-2xl rounded-4xl flex flex-col overflow-hidden mx-auto bg-[#E9F5EE]/90 backdrop-blur-lg">
-          <CardContent className="p-8">
-            <h2 className="text-5xl font-semibold font-[jersey-10] text-gray-800 mb-6 text-center">
-              Login to Dashboard
-            </h2>
+      <div className="flex items-center justify-center w-full lg:w-1/2 p-6">
+        <Card className="w-full max-w-md shadow-2xl rounded-xl overflow-hidden">
+          <CardContent className="p-8 bg-white/95 dark:bg-[#062a3a]">
+            <h2 className="text-2xl font-semibold text-center mb-6">Login to Dashboard</h2>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-slate-300" />
                 <Input
                   type="text"
                   placeholder="Email"
@@ -77,7 +75,7 @@ export default function Login() {
               </div>
 
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-slate-300" />
                 <Input
                   type="password"
                   placeholder="Password"
@@ -94,14 +92,14 @@ export default function Login() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#34A0A4] hover:bg-gray-900 text-white font-semibold py-3"
+                className="w-full btn-primary"
               >
                 Login
               </Button>
 
-              <p className="text-center text-sm text-gray-600">
-                Don’t have an account?{" "}
-                <Link to="/register" className="text-[#1E6091] hover:underline">
+              <p className="text-center text-sm text-gray-600 dark:text-slate-300">
+                Don’t have an account?{' '}
+                <Link to="/register" className="text-primary hover:underline">
                   Register here
                 </Link>
               </p>
