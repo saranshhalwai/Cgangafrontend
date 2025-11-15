@@ -1,4 +1,6 @@
 // src/api.ts
+import axios from "axios";
+
 export const API_BASE = "http://127.0.0.1:8000";
 
 export async function fetchGeoData(endpoint: string) {
@@ -7,15 +9,17 @@ export async function fetchGeoData(endpoint: string) {
   return res.json();
 }
 
-export async function addGroundwaterPoint(lat: number, lon: number, water_level: number, district = "") {
-  const url = `${API_BASE}/api/add_groundwater_point?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&water_level=${encodeURIComponent(
-    water_level
-  )}&district=${encodeURIComponent(district)}`;
-
-  const res = await fetch(url, { method: "POST" });
-  if (!res.ok) throw new Error(`Failed to add groundwater point: ${res.status} ${res.statusText}`);
-  return res.json();
+export async function addGroundwaterPoint(lat: number, lon: number, water_level: number, district: string) {
+    return axios.post(
+        "http://127.0.0.1:8000/api/add_groundwater_point",
+        {},
+        {
+            params: { lat, lon, water_level, district }
+        }
+    );
 }
+
+
 
 export async function updateStream(id: number, name: string, remarks = "") {
   const url = `${API_BASE}/api/update_stream?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&remarks=${encodeURIComponent(

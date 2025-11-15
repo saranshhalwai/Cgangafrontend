@@ -1,3 +1,6 @@
+import axios from "axios";
+import { addGroundwaterPoint } from "../api";
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,34 +108,41 @@ export default function UploadPage() {
     return (json ?? { message: "ok" }) as unknown;
   };
 
-  const submitPoint = async () => {
-    resetMessages();
-    const latNum = Number(lat);
-    const lonNum = Number(lon);
-    const wlNum = Number(waterLevel);
-    if (Number.isNaN(latNum) || Number.isNaN(lonNum) || Number.isNaN(wlNum)) {
-      setError("Latitude, longitude and water level must be valid numbers");
-      return;
-    }
-    setIsUploading(true);
-    try {
-        const res = await postJson("http://127.0.0.1:8000/api/add_groundwater_point", {
-        lat: latNum,
-        lon: lonNum,
-        water_level: wlNum,
-        district: district || "",
-      });
-      // try to extract message from response if available
-      const msg = typeof res === "object" && res !== null && "message" in (res as Record<string, unknown>) ? String((res as Record<string, unknown>)["message"]) : "Point added successfully";
-      setStatusMsg(msg);
-      // optionally navigate back
-      // window.location.href = "/";
-    } catch (err: unknown) {
-      setError((err as Error)?.message || String(err));
-    } finally {
-      setIsUploading(false);
-    }
-  };
+    const submitPoint = async () => {
+        resetMessages();
+
+        const latNum = Number(lat);
+        const lonNum = Number(lon);
+        const wlNum = Number(waterLevel);
+
+        if (Number.isNaN(latNum) || Number.isNaN(lonNum) || Number.isNaN(wlNum)) {
+            setError("Latitude, longitude and water level must be valid numbers");
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            const res = await axios.post(
+                "http://127.0.0.1:8000/api/add_groundwater_point",
+                {},
+                {
+                    params: {
+                        lat: latNum,
+                        lon: lonNum,
+                        water_level: wlNum,
+                        district: district || "",
+                    },
+                }
+            );
+
+            setStatusMsg(res.data.message || "Point added successfully");
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.message);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
 
   const submitUpdateStream = async () => {
     resetMessages();
