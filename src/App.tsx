@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import UpdatePage from "./pages/UpdatePage"
 import ViewPage from  "./pages/ViewPage"
 import { isLoggedIn as checkLoggedIn, isAdmin } from "./lib/auth";
+import LogsPage from "@/pages/Logs.tsx";
 
 function App() {
   // Simple authentication check
@@ -41,6 +42,7 @@ function App() {
           : <Navigate to="/login" replace />
       }
       />
+      <Route path="/logs" element={isLoggedIn ? (isUserAdmin ? <LogsPage/> : <Navigate to="/dashboard" replace />) : <Navigate to="/login" replace/>}/>
 
       {/* Redirect any unknown path */}
       <Route
