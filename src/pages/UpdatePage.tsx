@@ -22,7 +22,7 @@ interface EventItem {
   location: string;
 }
 
-const API_BASE = "http://127.0.0.1:8000"; // set to your API base if needed, e.g. "https://api.example.com"
+const API_BASE = "http://127.0.0.1:8000"; 
 
 const UpdatePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -49,8 +49,8 @@ useEffect(() => {
 }, []);
 
   // UI state
-  const [loading, setLoading] = useState(false); // global network activity
-  const [posting, setPosting] = useState(false); // posting-specific flag
+  const [loading, setLoading] = useState(false); 
+  const [posting, setPosting] = useState(false); 
 
   // stable min heights to avoid layout shift
   const containerMinHeight = { minHeight: "180px" };
@@ -112,9 +112,6 @@ useEffect(() => {
       reader.readAsDataURL(file);
     });
 
-  // -------------------------
-  // POSTS: create / update / delete
-  // -------------------------
   const addPost = async () => {
     if (!postTitle.trim() || !postContent.trim()) {
       alert("Please enter both title and content");
@@ -129,10 +126,9 @@ useEffect(() => {
         content: postContent.trim(),
         date: new Date().toISOString(),
         image: null,
-        username: currentUser, // change or make dynamic
+        username: currentUser, 
       };
 
-      // If user selected file, convert to base64 (assumption: backend accepts base64 string in `image`)
       if (postImageFile) {
         const dataUrl = await fileToDataUrl(postImageFile);
         newPost.image = dataUrl;
@@ -194,7 +190,6 @@ useEffect(() => {
     try {
       const res = await fetch(`${API_BASE}/posts/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
-      // server returns maybe string; remove locally
       setPosts((prev) => prev.filter((p) => p.id !== id));
       alert("Deleted");
     } catch (err) {
@@ -290,7 +285,6 @@ useEffect(() => {
 
   // Local edit/save for posts (client-side editing UI)
   const handleSaveEditedPost = async (edited: Post) => {
-    // If image is not changed we can send the same object. For larger changes you'd convert file -> base64 and include.
     await updatePost(edited.id, edited);
   };
 
@@ -383,11 +377,6 @@ useEffect(() => {
 };
 
 export default UpdatePage;
-
-/* --------------------------
-   Compact PostCard component
-   (keeps code inline below)
-   -------------------------- */
 
 interface PostCardProps {
   post: Post;
