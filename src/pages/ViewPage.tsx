@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const API_BASE = "http://127.0.0.1:8000"; // ← your backend
+const API_BASE = "http://127.0.0.1:8000"; 
 
-// ================= Interfaces ===================
 interface Post {
   id: number;
   title: string;
@@ -24,9 +23,7 @@ interface EventItem {
   date: string;
   location: string;
 }
-// ======================================================
-// MAIN PAGE
-// ======================================================
+
 const ViewPage: React.FC = () => {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
@@ -37,7 +34,6 @@ const ViewPage: React.FC = () => {
   const navigate = useNavigate();
   const [modalImage, setModalImage] = useState<string | null>(null);
 
-  // Utility
   const formatDate = (date: string) => {
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -54,7 +50,6 @@ const ViewPage: React.FC = () => {
       ? content.substring(0, maxLength) + "..."
       : content;
 
-  // Delete & Save locally
   const handleDelete = (id: number) => {
     if (!confirm("Delete this post?")) return;
     const updated = allPosts.filter((p) => p.id !== id);
@@ -97,9 +92,6 @@ useEffect(() => {
   const openModal = (image: string) => setModalImage(image);
   const closeModal = () => setModalImage(null);
 
-  // ================================
-  // FETCH GET ENDPOINTS FROM BACKEND
-  // ================================
   useEffect(() => {
     // GET POSTS
     fetch(`${API_BASE}/posts`)
@@ -217,9 +209,6 @@ useEffect(() => {
   );
 };
 
-// ======================================================
-// POST CARD COMPONENT
-// ======================================================
 interface PostCardProps {
   post: Post;
   formatDate: (date: string) => string;
