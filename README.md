@@ -1,94 +1,104 @@
 # CGanga Frontend
 
-A small React + Vite frontend for the CGanga visualization/upload tool.
+Frontend application for CGanga data visualization, admin data operations, and basic user/account workflows.
 
-This repository contains the UI for visualizing river/groundwater data and uploading new datasets (points and shapefiles). The UI is built with React + TypeScript, Vite, Tailwind, and Leaflet.
+## What this app does
 
-Backend
-- The backend for this project lives here: https://github.com/viraj18p/CGanga_Backend
-- The frontend expects the backend to expose a few API endpoints (listed below). The backend returns JSON status responses.
+- Auth flow: login, register, email verification
+- Protected dashboard with Leaflet map visualization
+- Layer toggling and refresh/export actions
+- Admin-only upload/update tools for groundwater and shapefile data
+- Profile page, gallery view, and logs view
+- Light/dark/system theme toggle
 
-Quick start
+## Tech stack
 
-Prerequisites
-- Node 16+ (Node 18+ recommended)
+- React 19 + TypeScript
+- Vite 7
+- React Router 7
+- Tailwind CSS 4
+- Leaflet
+- Axios + Fetch APIs
+
+## Backend dependency
+
+This frontend expects a separate backend service. Related backend repo:
+
+- https://github.com/viraj18p/CGanga_Backend
+
+Current frontend API calls are hardcoded to:
+
+- `http://127.0.0.1:8000`
+
+If your backend runs elsewhere, update URLs in:
+
+- `src/api.ts`
+- `src/pages/Upload.tsx`
+- `src/pages/Logs.tsx`
+
+## Prerequisites
+
+- Node.js 18+ recommended
 - npm
 
-Install dependencies
+## Local setup
 
 ```bash
 npm install
-```
-
-Run dev server
-
-```bash
 npm run dev
 ```
 
-Open the app in your browser (usually at http://localhost:5173). The app has two main routes:
-- `/` — main map/visualizer
-- `/upload` — upload / admin page
+Vite dev server runs at `http://localhost:5173` by default.
 
-Build for production
+## Available scripts
 
 ```bash
-npm run build
-npm run preview
+npm run dev      # Start dev server
+npm run build    # Type-check + production build
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
 ```
 
-Important local details
+## Routes
 
-- The app uses a ThemeProvider that stores the preferred theme in localStorage under the key `vite-ui-theme`. The header contains a small button that cycles Light / Dark / Auto (system) modes.
-- The upload page (`/upload`) contains four operations: Add Groundwater Point, Update Stream, Upload Stream Shapefile, Upload Basin Shapefile. Use the Upload page to POST/PUT to the backend endpoints listed below.
+Public:
 
-API endpoints (backend)
+- `/login`
+- `/register`
+- `/verify/:token`
 
-The frontend currently calls these backend endpoints (see backend repo for implementation details):
+Protected (requires token):
 
-- POST /api/add_groundwater_point
-  - params (JSON): { lat: number, lon: number, water_level: number, district?: string }
-  - returns: JSON status message
+- `/dashboard`
+- `/profile`
+- `/ViewPage`
 
-- PUT /api/update_stream
-  - params (JSON): { id: number, name: string, remarks?: string }
-  - returns: JSON status message
+Admin-only (requires admin role):
 
-- POST /api/upload_stream_shapefile
-  - form-data: file (shapefile/zip)
-  - returns: JSON status message
+- `/upload`
+- `/UpdatePage`
+- `/logs`
 
-- POST /api/upload_basin_shapefile
-  - form-data: file (shapefile/zip)
-  - returns: JSON status message
+Unknown routes redirect to `/dashboard` (if logged in) or `/login`.
 
-If your backend runs on a different host/port, update the fetch URLs in `src/api.ts` or use a proxy configuration in Vite.
+## Key API endpoints used by the frontend
 
-Styling & theme
+- `POST /api/add_groundwater_point`
+- `PUT /api/update_stream`
+- `POST /api/upload_stream_shapefile`
+- `POST /api/upload_basin_shapefile`
+- `GET /api/ground_water_points`
+- `GET /api/hindon_stream_network`
+- `GET /api/hindon_basin`
+- `GET /logs`
 
-Palette used (light → dark):
-- #D9ED92
-- #B5E48C
-- #99D98C
-- #76C893
-- #52B69A
-- #34A0A4 (primary)
-- #168AAD
-- #1A759F
-- #1E6091
-- #184E77
+## Auth/role handling
 
-Notes:
-- Primary actions and buttons use `#34A0A4` and darker hover `#1E6091` so they stand out in both light and dark themes.
-- Cards are styled with a translucent/glassy look and dark-mode friendly backgrounds.
+- Login state is based on `token` in `localStorage`.
+- Role checks use `role` in `localStorage`, or role fields in JWT payload.
+- Admin access accepts roles like `admin`, `administrator`, or `superadmin`.
 
-Developer notes / known issues
+## Notes
 
-- `src/App.tsx` currently contains a temporary ESLint disable for some `any` usage and empty-catch blocks; this keeps edits small but should be tightened in a follow-up PR (fix types and avoid empty catches).
-- Map tiles use OpenStreetMap by default. If you want dark tiles when in dark mode, we can switch tile providers based on theme.
-- If the UI looks off after CSS edits, try a hard refresh (Ctrl+Shift+R) to clear cached styles.
-
-Contributing
-
-If you'd like changes (theme tweaks, extract colors to CSS variables, dark map tiles, better types), open an issue or PR — I'm happy to help implement them.
-
+- The app currently has pre-existing lint/type issues in source files unrelated to this README refresh.
+- Map tiles use OpenStreetMap.
